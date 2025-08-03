@@ -122,6 +122,7 @@ const MultiNoteSheetMusicDisplay: React.FC<MultiNoteSheetMusicDisplayProps> = ({
   stemWidth = 2, // Default width
   stemLength = 40, // Default length
   ledgerLineLength = 30, // Default length
+  keySignature,
 }) => {
   const lineSpacing = 10; // Distance between two adjacent staff lines
   const staffHeight = 4 * lineSpacing;

@@ -13,6 +13,7 @@ interface NoteProps {
   stemWidth: number; // New: width of the stem
   stemLength: number; // New: length of the stem
   ledgerLineLength: number; // New: length of the ledger line
+  keySignature?: { symbol: string; midiNumber: number }[]; // New: key signature accidentals
 }
 
 const Note: React.FC<NoteProps> = ({
@@ -39,11 +40,20 @@ const Note: React.FC<NoteProps> = ({
   const isSharp = noteName.includes('#');
   const isFlat = noteName.includes('b');
   const accidentalSymbol = isSharp ? '♯' : (isFlat ? '♭' : '');
-  const accidentalOffset = accidentalSymbol ? 15 : 0; // Adjust offset if accidental is present
+
+  // Check if the accidental is already covered by the key signature
+  const isAccidentalInKeySignature = keySignature && keySignature.some(acc => {
+    // Simplified check: just compare the base note and accidental type
+    const baseNote = getBaseNoteName(midiNumber);
+    const accidentalBaseNote = getBaseNoteName(acc.midiNumber);
+    return baseNote === accidentalBaseNote && acc.symbol === accidentalSymbol;
+  });
+
+  const accidentalOffset = (accidentalSymbol && !isAccidentalInKeySignature) ? 15 : 0; // Adjust offset if accidental is present and not in key signature
 
   return (
     <>
-      {accidentalSymbol && (
+      {accidentalSymbol && !isAccidentalInKeySignature && (
         <div
           className="absolute text-xl font-serif"
           style={{
@@ -103,6 +113,7 @@ interface MultiNoteSheetMusicDisplayProps {
   stemWidth?: number; // New: optional width for stems
   stemLength?: number; // New: optional length for stems
   ledgerLineLength?: number; // New: optional length for ledger lines
+  keySignature?: { symbol: string; midiNumber: number }[]; // New: key signature accidentals
 }
 
 const MultiNoteSheetMusicDisplay: React.FC<MultiNoteSheetMusicDisplayProps> = ({
@@ -190,6 +201,26 @@ const MultiNoteSheetMusicDisplay: React.FC<MultiNoteSheetMusicDisplayProps> = ({
           &#x1D11E; {/* Unicode for G Clef (Treble Clef) */}
         </div>
 
+        {/* Key Signature */}
+        {keySignature && keySignature.map((accidental, index) => {
+          const accidentalPosition = noteVerticalPositions[accidental.midiNumber];
+          if (accidentalPosition === undefined) return null;
+          return (
+            <div
+              key={index}
+              className="absolute text-xl font-serif"
+              style={{
+                top: `${accidentalPosition + verticalPadding - (noteHeadSize / 2) - 5}px`,
+                left: `${30 + index * 15}px`, // Position accidentals with some spacing
+                color: 'black',
+                zIndex: 10,
+              }}
+            >
+              {accidental.symbol}
+            </div>
+          );
+        })}
+
         {/* Staff Lines */}
         {[0, 1, 2, 3, 4].map((lineIndex) => (
           <div
@@ -204,7 +235,7 @@ const MultiNoteSheetMusicDisplay: React.FC<MultiNoteSheetMusicDisplayProps> = ({
           <Note
             key={midi}
             midiNumber={midi}
-            xOffset={50 + index * (noteHeadSize + 10)} // Adjust spacing based on noteHeadSize
+            xOffset={50 + (keySignature ? keySignature.length * 15 : 0) + index * (noteHeadSize + 10)} // Adjust spacing based on noteHeadSize and key signature
             verticalPadding={verticalPadding}
             stepHeight={stepHeight}
             noteVerticalPositions={noteVerticalPositions}
@@ -213,6 +244,7 @@ const MultiNoteSheetMusicDisplay: React.FC<MultiNoteSheetMusicDisplayProps> = ({
             stemWidth={stemWidth}
             stemLength={stemLength}
             ledgerLineLength={ledgerLineLength}
+            keySignature={keySignature} // Pass key signature to Note component
           />
         ))}
       </div>

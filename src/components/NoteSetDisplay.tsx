@@ -1,8 +1,8 @@
 // src/components/NoteSetDisplay.tsx
 
 import React from 'react';
-import { getNoteName } from '../utils/noteUtils'; // Import the centralized utility
-import SheetMusicDisplay from './MultiNoteSheetMusicDisplay'; // Import MultiNoteSheetMusicDisplay
+import { getNoteName, getKeySignatureAccidentals } from '../utils/noteUtils'; // Import the centralized utility
+import MultiNoteSheetMusicDisplay from './MultiNoteSheetMusicDisplay'; // Import MultiNoteSheetMusicDisplay
 
 interface NoteSetDisplayProps {
   midiNumbers: number[];
@@ -14,6 +14,8 @@ const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title }) =
     return null; // Don't render if no notes are provided
   }
 
+  const keySignature = getKeySignatureAccidentals(title);
+
   return (
     <div className="w-full p-4 bg-gray-800 rounded-lg shadow-lg mb-8">
       <h3 className="text-xl font-semibold text-white mb-4 text-center">{title}</h3>
@@ -24,12 +26,13 @@ const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title }) =
             <span key={midi} className="text-sm text-gray-300 mx-2">{getNoteName(midi)}</span>
           ))}
         </div>
-        <SheetMusicDisplay 
+        <MultiNoteSheetMusicDisplay 
           midiNumbers={midiNumbers} 
           noteHeadSize={30} 
           stemWidth={3} 
           stemLength={60} 
           ledgerLineLength={40} 
+          keySignature={keySignature}
         />
       </div>
     </div>

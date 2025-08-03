@@ -164,7 +164,6 @@ const PianoFlashcardLearner: React.FC = () => {
         <div className="mb-8">
           <SheetMusicDisplay 
             midiNumber={currentNote} 
-            noteColor="bg-white" 
             noteHeadSize={30} 
             stemWidth={3} 
             stemLength={60} 

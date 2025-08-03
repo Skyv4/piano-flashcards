@@ -1,5 +1,6 @@
 import React from 'react';
 import { getNoteName } from '../utils/noteUtils';
+import { NOTE_COLORS, getBaseNoteName } from '../utils/noteColors';
 
 interface NoteProps {
   midiNumber: number;
@@ -17,7 +18,6 @@ interface NoteProps {
 
 const Note: React.FC<NoteProps> = ({
   midiNumber,
-  noteColor,
   xOffset,
   verticalPadding,
   stepHeight,
@@ -35,11 +35,12 @@ const Note: React.FC<NoteProps> = ({
   }
 
   const noteName = getNoteName(midiNumber);
+  const baseNoteColorClass = NOTE_COLORS[getBaseNoteName(midiNumber)] || 'bg-white';
 
   return (
     <>
       <div
-        className={`absolute rounded-full ${noteColor || 'bg-white'} flex items-center justify-center`}
+        className={`absolute rounded-full ${baseNoteColorClass} flex items-center justify-center`}
         style={{
           width: `${noteHeadSize}px`,
           height: `${noteHeadSize}px`,
@@ -54,7 +55,7 @@ const Note: React.FC<NoteProps> = ({
       </div>
       {/* Stem */}
       <div
-        className={`absolute ${noteColor || 'bg-white'}`}
+        className={`absolute ${baseNoteColorClass}`}
         style={{
           width: `${stemWidth}px`,
           height: `${stemLength}px`,
@@ -80,7 +81,6 @@ const Note: React.FC<NoteProps> = ({
 
 interface MultiNoteSheetMusicDisplayProps {
   midiNumbers: number[];
-  noteColors?: string[]; // Optional: array of colors for each note
   noteHeadSize?: number; // New: optional size for note heads
   stemWidth?: number; // New: optional width for stems
   stemLength?: number; // New: optional length for stems
@@ -89,7 +89,6 @@ interface MultiNoteSheetMusicDisplayProps {
 
 const MultiNoteSheetMusicDisplay: React.FC<MultiNoteSheetMusicDisplayProps> = ({ 
   midiNumbers, 
-  noteColors, 
   noteHeadSize = 20, // Default size
   stemWidth = 2, // Default width
   stemLength = 40, // Default length

@@ -14,8 +14,6 @@ const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title }) =
     return null; // Don't render if no notes are provided
   }
 
-  const noteColors = midiNumbers.map((_, index) => (index % 2 === 0 ? 'bg-blue-500' : 'bg-green-500'));
-
   return (
     <div className="w-full p-4 bg-gray-800 rounded-lg shadow-lg mb-8">
       <h3 className="text-xl font-semibold text-white mb-4 text-center">{title}</h3>
@@ -28,11 +26,10 @@ const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title }) =
         </div>
         <SheetMusicDisplay 
           midiNumbers={midiNumbers} 
-          noteColors={noteColors} 
-          noteHeadSize={30} // Larger note heads
-          stemWidth={3} // Thicker stems
-          stemLength={60} // Longer stems
-          ledgerLineLength={40} // Longer ledger lines
+          noteHeadSize={30} 
+          stemWidth={3} 
+          stemLength={60} 
+          ledgerLineLength={40} 
         />
       </div>
     </div>

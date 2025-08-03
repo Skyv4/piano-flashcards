@@ -4,7 +4,6 @@ import { NOTE_COLORS, getBaseNoteName } from '../utils/noteColors';
 
 interface NoteProps {
   midiNumber: number;
-  noteColor?: string;
   xOffset: number; // Horizontal offset for the note
   verticalPadding: number;
   stepHeight: number;
@@ -37,15 +36,34 @@ const Note: React.FC<NoteProps> = ({
   const noteName = getNoteName(midiNumber);
   const baseNoteColorClass = NOTE_COLORS[getBaseNoteName(midiNumber)] || 'bg-white';
 
+  const isSharp = noteName.includes('#');
+  const isFlat = noteName.includes('b');
+  const accidentalSymbol = isSharp ? '♯' : (isFlat ? '♭' : '');
+  const accidentalOffset = accidentalSymbol ? 15 : 0; // Adjust offset if accidental is present
+
   return (
     <>
+      {accidentalSymbol && (
+        <div
+          className="absolute text-xl font-serif"
+          style={{
+            top: `${notePosition + verticalPadding - (noteHeadSize / 2) - 5}px`, // Adjust vertical position
+            left: `${xOffset - noteHeadSize / 2 - accidentalOffset}px`, // Position to the left of the note head
+            transform: 'translateX(-50%)',
+            color: 'black',
+            zIndex: 10,
+          }}
+        >
+          {accidentalSymbol}
+        </div>
+      )}
       <div
         className={`absolute rounded-full ${baseNoteColorClass} flex items-center justify-center`}
         style={{
           width: `${noteHeadSize}px`,
           height: `${noteHeadSize}px`,
           top: `${notePosition + verticalPadding - (noteHeadSize / 2)}px`,
-          left: `${xOffset}px`,
+          left: `${xOffset + accidentalOffset}px`, // Shift note head to the right
           transform: 'translateX(-50%)',
           fontSize: `${noteHeadSize * 0.6}px`, // Adjust font size based on note head size
           color: 'black', // Text color for the note name
@@ -60,7 +78,7 @@ const Note: React.FC<NoteProps> = ({
           width: `${stemWidth}px`,
           height: `${stemLength}px`,
           top: `${notePosition + verticalPadding - (midiNumber >= 71 ? stemLength : 0)}px`,
-          left: `${xOffset + (midiNumber >= 71 ? -(noteHeadSize / 2 - stemWidth / 2) : (noteHeadSize / 2 - stemWidth / 2))}px`,
+          left: `${xOffset + accidentalOffset + (midiNumber >= 71 ? -(noteHeadSize / 2 - stemWidth / 2) : (noteHeadSize / 2 - stemWidth / 2))}px`,
         }}
       ></div>
       {/* Ledger Lines */}
@@ -87,8 +105,8 @@ interface MultiNoteSheetMusicDisplayProps {
   ledgerLineLength?: number; // New: optional length for ledger lines
 }
 
-const MultiNoteSheetMusicDisplay: React.FC<MultiNoteSheetMusicDisplayProps> = ({ 
-  midiNumbers, 
+const MultiNoteSheetMusicDisplay: React.FC<MultiNoteSheetMusicDisplayProps> = ({
+  midiNumbers,
   noteHeadSize = 20, // Default size
   stemWidth = 2, // Default width
   stemLength = 40, // Default length
@@ -186,7 +204,6 @@ const MultiNoteSheetMusicDisplay: React.FC<MultiNoteSheetMusicDisplayProps> = ({
           <Note
             key={midi}
             midiNumber={midi}
-            noteColor={noteColors ? noteColors[index] : undefined}
             xOffset={50 + index * (noteHeadSize + 10)} // Adjust spacing based on noteHeadSize
             verticalPadding={verticalPadding}
             stepHeight={stepHeight}

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { getNoteName, getKeySignatureAccidentals } from '../utils/noteUtils'; // Import the centralized utility
+import { NOTE_COLORS, getBaseNoteName } from '../utils/noteColors'; // Import note coloring utilities
 import SheetMusicStaff from './SheetMusicStaff'; // Import MultiNoteSheetMusicDisplay
 
 interface NoteSetDisplayProps {
@@ -23,9 +24,19 @@ const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title, nam
       <div className="flex flex-wrap justify-center gap-4">
         {/* Display note names above the single SheetMusicDisplay */}
         <div className="flex justify-center w-full mb-4">
-          {midiNumbers.map((midi) => (
-            <span key={midi} className="text-sm text-gray-300 mx-2">{getNoteName(midi)}</span>
-          ))}
+          {midiNumbers.map((midi) => {
+            const baseNoteName = getBaseNoteName(midi);
+            const noteColorClass = NOTE_COLORS[baseNoteName] ? NOTE_COLORS[baseNoteName].replace('bg-', 'text-') : 'text-gray-300'; // Fallback to gray if no color defined
+            const fullNoteName = getNoteName(midi);
+            const noteLiteral = fullNoteName.match(/^[A-G](#|b)?/)?.[0] || '';
+            const octaveNumber = fullNoteName.replace(noteLiteral, '');
+            return (
+                            <span key={midi} className="text-lg font-bold mx-2">
+                <span className={`${noteColorClass}`}>{noteLiteral}</span>
+                <span className="text-white">{octaveNumber}</span>
+              </span>
+            );
+          })}
         </div>
         <SheetMusicStaff 
           midiNumbers={midiNumbers} 

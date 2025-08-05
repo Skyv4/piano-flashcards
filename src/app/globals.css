@@ -24,3 +24,127 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.hovered-key {
+  background-color: #a0aec0; /* A light gray for hover effect */
+  opacity: 0.7;
+}
+
+/* Base key styles */
+.ReactPiano__Key {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid #888; /* Light gray border */
+  border-radius: 0 0 3px 3px; /* Rounded bottom corners */
+  cursor: pointer;
+  transition: background-color 0.1s ease; /* Smooth transition for hover */
+}
+
+/* Natural (white) key styles */
+.ReactPiano__Key--natural {
+  background-color: #fff;
+  z-index: 1; /* White keys are behind black keys */
+  height: 100%; /* White keys span full height */
+}
+
+/* Accidental (black) key styles */
+.ReactPiano__Key--accidental {
+  background-color: #333; /* Dark gray for black keys */
+  z-index: 2; /* Black keys are on top of white keys */
+  height: 60%; /* Black keys are shorter */
+  
+  border-radius: 0 0 3px 3px; /* Rounded bottom corners */
+}
+
+/* Active key styles */
+.ReactPiano__Key--active {
+  background-color: #a0aec0; /* Highlight color for active keys */
+}
+
+/* Disabled key styles */
+.ReactPiano__Key--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Note label container */
+.ReactPiano__NoteLabelContainer {
+  position: absolute;
+  bottom: 5px;
+  width: 100%;
+  text-align: center;
+  color: #888; /* Light gray for note labels */
+  font-size: 0.8em;
+}
+
+/* Note label */
+.ReactPiano__NoteLabel {
+  /* Add any specific styles for the note label itself */
+}
+
+/* Note name within label */
+.ReactPiano__NoteLabel__NoteName {
+  /* Add any specific styles for the note name */
+}
+
+.text-stroke-1 {
+  -webkit-text-stroke-width: 1px;
+}
+
+.text-stroke-black {
+  -webkit-text-stroke-color: black;
+}
+
+/* Custom Switch Styles */
+.custom-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.custom-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4CAF50; /* Green color when checked */
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #4CAF50;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}

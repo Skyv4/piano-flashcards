@@ -13,6 +13,7 @@ interface NoteProps {
   stemLength: number;
   ledgerLineLength: number;
   keySignature?: { symbol: string; midiNumber: number }[];
+  hideNoteLetter: boolean;
 }
 
 const Note: React.FC<NoteProps> = ({
@@ -26,6 +27,7 @@ const Note: React.FC<NoteProps> = ({
   stemLength,
   ledgerLineLength,
   keySignature,
+  hideNoteLetter,
 }) => {
   const notePosition = noteVerticalPositions[midiNumber];
 
@@ -78,7 +80,7 @@ const Note: React.FC<NoteProps> = ({
           zIndex: 2, // Ensure note head is above ledger line
         }}
       >
-        {noteName.charAt(0)}
+        {!hideNoteLetter && noteName.charAt(0)}
       </div>
       {/* Stem */}
       <div
@@ -116,6 +118,7 @@ interface SheetMusicStaffProps {
   height?: number; // New prop for controlling the height of the staff display
   clefColor?: string;
   sharpsAndFlats?: { symbol: string; midiNumber: number }[];
+  hideNoteLetter?: boolean; // New prop to hide the note letter
 }
 
 const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
@@ -127,6 +130,7 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
   height = 256, // Default height
   clefColor = 'text-gray-800', // Default to dark color
   sharpsAndFlats = [],
+  hideNoteLetter = false,
 }) => {
   // Calculate line spacing and step height based on the provided height
   // The staff will occupy a portion of the total height, maintaining proportions
@@ -222,7 +226,7 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
             return (
               <div
                 key={index}
-                className="absolute text-4xl"
+                className={`absolute text-4xl ${clefColor}`}
                 style={{
                   left: `${index * 20}px`,
                   top: `${notePosition + verticalPadding - 18}px`,
@@ -258,6 +262,7 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
             stemLength={stemLength}
             ledgerLineLength={ledgerLineLength}
             keySignature={sharpsAndFlats}
+            hideNoteLetter={hideNoteLetter}
           />
         ))}
       </div>

@@ -188,45 +188,64 @@ const PianoFlashcardLearner: React.FC = () => {
         />
       </div>
 
-      <div className="flex flex-row items-start w-full max-w-4xl mb-8"> {/* New parent div for flex row */}
+      <div className="flex flex-row items-start w-full max-w-4xl mb-8">
+        {currentNote !== null && (
+          <div className="bg-gray-100 rounded-lg shadow-lg p-6 w-full max-w-sm mr-8"> {/* Added mr-8 for spacing */}
+            <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Find this note</h2>
+            <SheetMusicStaff 
+              midiNumbers={[currentNote]} 
+              noteHeadSize={30} 
+              stemWidth={3} 
+              stemLength={60} 
+              ledgerLineLength={40} 
+              clefColor="text-gray-800"
+              sharpsAndFlats={getKeySignatureAccidentals(activeNoteSet ? activeNoteSet.name : '')}
+              hideNoteLetter={isDrillMode}
+              clefType={clefMode}
+            />
+          </div>
+        )}
+
         <div className="flex flex-col items-start flex-grow"> {/* Left column for controls */}
-          {/* New Drill Mode Selection */}
-          <div className="flex flex-row items-center mb-4"> {/* Added flex-row and mb-4 for spacing */}
-            <label htmlFor="clef-select" className="text-lg mr-2 text-gray-300">Select Clef:</label>
-            <select
-              id="clef-select"
-              className="px-3 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={clefMode}
-              onChange={(e) => setClefMode(e.target.value as 'treble' | 'bass')}
+          <div className="bg-gray-800 rounded-lg shadow-lg p-4 mb-4 w-full"> {/* Styled container for buttons */}
+            {/* New Drill Mode Selection */}
+            <div className="flex flex-row items-center mb-4"> {/* Added flex-row and mb-4 for spacing */}
+              <label htmlFor="clef-select" className="text-lg mr-2 text-gray-300">Select Clef:</label>
+              <select
+                id="clef-select"
+                className="px-3 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={clefMode}
+                onChange={(e) => setClefMode(e.target.value as 'treble' | 'bass')}
+                disabled={isDrillMode}
+              >
+                <option value="treble">Treble Clef</option>
+                <option value="bass">Bass Clef</option>
+              </select>
+            </div>
+
+            <div className="flex flex-row items-center mb-4"> {/* Added flex-row and mb-4 for spacing */}
+              <label htmlFor="drill-set-select" className="text-lg mr-2 text-gray-300">Select Drill Set:</label>
+              <select
+                id="drill-set-select"
+                className="px-3 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedNoteSetId}
+                onChange={(e) => setSelectedNoteSetId(e.target.value)}
+                disabled={isDrillMode}
+              >
+                {availableNoteSets.map(set => (
+                  <option key={set.id} value={set.id}>{set.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={startDrill}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={isDrillMode}
             >
-              <option value="treble">Treble Clef</option>
-              <option value="bass">Bass Clef</option>
-            </select>
+              Start Drill (10 Questions)
+            </button>
           </div>
-
-          <div className="flex flex-row items-center mb-4"> {/* Added flex-row and mb-4 for spacing */}
-            <label htmlFor="drill-set-select" className="text-lg mr-2 text-gray-300">Select Drill Set:</label>
-            <select
-              id="drill-set-select"
-              className="px-3 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={selectedNoteSetId}
-              onChange={(e) => setSelectedNoteSetId(e.target.value)}
-              disabled={isDrillMode}
-            >
-              {availableNoteSets.map(set => (
-                <option key={set.id} value={set.id}>{set.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            onClick={startDrill}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-            disabled={isDrillMode}
-          >
-            Start Drill (10 Questions)
-          </button>
 
           {/* Display selected note set notes - "Everglade of possibilities" */}
           {displayedNoteSet && displayedNoteSet.id !== 'all-notes' && (
@@ -242,14 +261,30 @@ const PianoFlashcardLearner: React.FC = () => {
         {showScoreAndProgress && (
           <div className="flex flex-col items-end ml-8 p-4 bg-gray-800 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold text-white mb-4">Drill Progress</h2>
-            <p className="text-xl text-white">Question: {currentQuestionIndex} / 10</p>
-            <p className="text-xl text-white">Score: {correctAnswers} / {currentQuestionIndex}</p>
+            <p className="text-xl text-white}>Question: {currentQuestionIndex} / 10</p>
+            <p className="text-xl text-white}>Score: {correctAnswers} / {currentQuestionIndex}</p>
           </div>
         )}
       </div>
 
+      <div className="w-full max-w-4xl mb-8">
+        <CustomKeyboard
+          noteRange={noteRange}
+          onPlayNoteInput={onPlayNote}
+          onStopNoteInput={onStopNote}
+          width={800}
+          keyWidthToHeight={0.3}
+          activeNotes={highlightKeyHint && currentNote !== null ? [currentNote] : []}
+          hoveredNote={hoveredNote}
+          onMouseEnter={setHoveredNote}
+          onMouseLeave={setHoveredNote}
+          showNoteLabels={labelNotesHint}
+        />
+      </div>
+
       {feedback && showFeedback && (
-        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold transition-opacity duration-500 ease-in-out ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'} opacity-100`}>
+        <div className={`absolute top-[35%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold transition-opacity duration-500 ease-in-out p-6 rounded-xl shadow-lg z-50
+          ${feedback === 'Correct!' ? 'bg-green-700 bg-opacity-90 text-white' : 'bg-red-700 bg-opacity-90 text-white'} opacity-100`}>
           {feedback}
         </div>
       )}

@@ -24,9 +24,17 @@ const PianoFlashcardLearner: React.FC = () => {
   const [hoveredNote, setHoveredNote] = useState<number | null>(null);
   const [highlightKeyHint, setHighlightKeyHint] = useState<boolean>(false);
   const [labelNotesHint, setLabelNotesHint] = useState<boolean>(false);
+  const [clefMode, setClefMode] = useState<'treble' | 'bass'>('treble');
 
-     // Default to 'All Notes'
-  const [availableNoteSets] = useState<NoteSet[]>(PREDEFINED_NOTE_SETS);
+  const availableNoteSets = useMemo(() => {
+    return PREDEFINED_NOTE_SETS.filter(set => {
+      if (clefMode === 'treble') {
+        return set.clef === 'treble' || set.clef === 'both';
+      } else {
+        return set.clef === 'bass' || set.clef === 'both';
+      }
+    });
+  }, [clefMode]);
 
   const noteRange = useMemo(() => ({
     first: MidiNumbers.fromNote('c3'),
@@ -71,6 +79,13 @@ const PianoFlashcardLearner: React.FC = () => {
       generateQuestion();
     }
   }, [generateQuestion, selectedNoteSetId, isDrillMode]);
+
+  useEffect(() => {
+    // When clefMode changes, reset selectedNoteSetId to a valid default for the new clef
+    if (availableNoteSets.length > 0 && !availableNoteSets.some(set => set.id === selectedNoteSetId)) {
+      setSelectedNoteSetId(availableNoteSets[0].id);
+    }
+  }, [clefMode, availableNoteSets, selectedNoteSetId]);
 
   const onPlayNote = (midiNumber: number) => {
     if (currentNote === null) return;
@@ -128,6 +143,20 @@ const PianoFlashcardLearner: React.FC = () => {
         <div className="flex flex-col items-start flex-grow"> {/* Left column for controls */}
           {/* New Drill Mode Selection */}
           <div className="flex flex-row items-center mb-4"> {/* Added flex-row and mb-4 for spacing */}
+            <label htmlFor="clef-select" className="text-lg mr-2 text-gray-300">Select Clef:</label>
+            <select
+              id="clef-select"
+              className="px-3 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={clefMode}
+              onChange={(e) => setClefMode(e.target.value as 'treble' | 'bass')}
+              disabled={isDrillMode}
+            >
+              <option value="treble">Treble Clef</option>
+              <option value="bass">Bass Clef</option>
+            </select>
+          </div>
+
+          <div className="flex flex-row items-center mb-4"> {/* Added flex-row and mb-4 for spacing */}
             <label htmlFor="drill-set-select" className="text-lg mr-2 text-gray-300">Select Drill Set:</label>
             <select
               id="drill-set-select"
@@ -182,6 +211,7 @@ const PianoFlashcardLearner: React.FC = () => {
             clefColor="text-gray-800"
             sharpsAndFlats={getKeySignatureAccidentals(activeNoteSet ? activeNoteSet.name : '')}
             hideNoteLetter={isDrillMode}
+            clefType={clefMode}
           />
         </div>
       )}

@@ -119,6 +119,7 @@ interface SheetMusicStaffProps {
   clefColor?: string;
   sharpsAndFlats?: { symbol: string; midiNumber: number }[];
   hideNoteLetter?: boolean; // New prop to hide the note letter
+  clefType?: 'bass' | 'treble'; // New prop for clef type
 }
 
 const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
@@ -131,63 +132,83 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
   clefColor = 'text-gray-800', // Default to dark color
   sharpsAndFlats = [],
   hideNoteLetter = false,
+  clefType = 'treble', // Default to treble clef
 }) => {
-  // Calculate line spacing and step height based on the provided height
-  // The staff will occupy a portion of the total height, maintaining proportions
-  const staffDisplayHeight = height;
-  const staffLineCount = 5; // Number of lines in a standard staff
-  const totalSteps = 17; // From lowest to highest note position defined
+  const getClefSpecificData = (clef: 'bass' | 'treble', stepHeight: number) => {
+    let noteVerticalPositions: { [key: number]: number };
+    let notesWithLedgerLines: number[];
+    let clefSymbol: string;
+    let clefTopOffset: string;
+    let clefLeftOffset: string;
+    let totalSteps: number;
 
-  // Determine a base unit for scaling. We want the staff lines to fit within a reasonable portion of the height.
-  // Let's assume the 4 spaces between the 5 lines take up a certain percentage of the height.
-  // A standard staff has 4 spaces. If lineSpacing is the height of one space, then 4 * lineSpacing is the staff height.
-  // We need to ensure that the total range of notes (from 48 to 77) fits within the staffDisplayHeight.
-
-  // A reasonable approach is to define a fixed number of "steps" that cover the entire range of notes we want to display.
-  // The current noteVerticalPositions covers 17 steps (from 0 to 17 * stepHeight).
-  // Let's make the `stepHeight` dynamic based on the `height` prop.
-  // We'll allocate a certain portion of the `height` for the note span.
-  // For example, if we want the 17 steps to take up 80% of the height, then:
-  // 17 * stepHeight = 0.8 * height
-  // stepHeight = (0.8 * height) / 17
-
-  // Let's refine this. The current `noteVerticalPositions` maps MIDI numbers to positions based on `stepHeight`.
-  // The total span of these positions is `17 * stepHeight`.
-  // We also have `verticalPadding` which is `2 * stepHeight`.
-  // So, `staffContainerHeight` is `(17 + 2*2) * stepHeight = 21 * stepHeight`.
-  // We want `21 * stepHeight` to be roughly equal to `height`.
-  const calculatedStepHeight = height / (totalSteps + (2 * 2)); // totalSteps + 2 * verticalPadding in steps
-  const lineSpacing = calculatedStepHeight * 2; // lineSpacing is 2 steps
-
-  const staffHeight = 4 * lineSpacing; // 4 spaces between 5 lines
-
-  const noteVerticalPositions: { [key: number]: number } = {
-    77: 0 * calculatedStepHeight,
-    76: 1 * calculatedStepHeight,
-    74: 2 * calculatedStepHeight,
-    72: 3 * calculatedStepHeight,
-    71: 4 * calculatedStepHeight,
-    69: 5 * calculatedStepHeight,
-    67: 6 * calculatedStepHeight,
-    65: 7 * calculatedStepHeight,
-    64: 8 * calculatedStepHeight,
-    62: 9 * calculatedStepHeight,
-    60: 10 * calculatedStepHeight,
-    59: 11 * calculatedStepHeight,
-    57: 12 * calculatedStepHeight,
-    55: 13 * calculatedStepHeight,
-    53: 14 * calculatedStepHeight,
-    52: 15 * calculatedStepHeight,
-    50: 16 * calculatedStepHeight,
-    48: 17 * calculatedStepHeight,
+    if (clef === 'treble') {
+      totalSteps = 17;
+      noteVerticalPositions = {
+        77: 0 * stepHeight, // F5
+        76: 1 * stepHeight, // E5#
+        74: 2 * stepHeight, // D5
+        72: 3 * stepHeight, // C5#
+        71: 4 * stepHeight, // B4
+        69: 5 * stepHeight, // A4
+        67: 6 * stepHeight, // G4
+        65: 7 * stepHeight, // F4
+        64: 8 * stepHeight, // E4
+        62: 9 * stepHeight, // D4
+        60: 10 * stepHeight, // C4 (Middle C)
+        59: 11 * stepHeight, // B3
+        57: 12 * stepHeight, // A3
+        55: 13 * stepHeight, // G3
+        53: 14 * stepHeight, // F3
+        52: 15 * stepHeight, // E3
+        50: 16 * stepHeight, // D3
+        48: 17 * stepHeight, // C3
+      };
+      notesWithLedgerLines = [62, 60, 59, 57, 55, 53, 52, 50, 48];
+      clefSymbol = '&#x1D11E;'; // Treble clef symbol
+      clefTopOffset = `${(4 * stepHeight) - 25}px`; // Position for treble clef
+      clefLeftOffset = '0';
+    } else { // bass clef
+      totalSteps = 17; // This might need adjustment based on the actual range of notes for bass clef
+      noteVerticalPositions = {
+        60: 0 * stepHeight, // C4 (Middle C)
+        59: 1 * stepHeight, // B3
+        57: 2 * stepHeight, // A3
+        55: 3 * stepHeight, // G3
+        53: 4 * stepHeight, // F3
+        52: 5 * stepHeight, // E3
+        50: 6 * stepHeight, // D3
+        48: 7 * stepHeight, // C3
+        47: 8 * stepHeight, // B2
+        45: 9 * stepHeight, // A2
+        43: 10 * stepHeight, // G2
+        41: 11 * stepHeight, // F2
+        40: 12 * stepHeight, // E2
+        38: 13 * stepHeight, // D2
+        36: 14 * stepHeight, // C2
+        35: 15 * stepHeight, // B1
+        33: 16 * stepHeight, // A1
+      };
+      notesWithLedgerLines = [60, 59, 57, 55, 53, 52, 50, 48, 47, 45, 43, 41, 40, 38, 36, 35, 33];
+      clefSymbol = '&#x1D122;'; // Bass clef symbol
+      clefTopOffset = `${(2 * stepHeight) - 25}px`; // Position for bass clef
+      clefLeftOffset = '0';
+    }
+    return { noteVerticalPositions, notesWithLedgerLines, clefSymbol, clefTopOffset, clefLeftOffset, totalSteps };
   };
 
-  const notesWithLedgerLines = [
-    62, 60, 59, 57, 55, 53, 52, 50, 48,
-  ];
+  const staffDisplayHeight = height;
+  const staffLineCount = 5;
+  
+  const calculatedStepHeight = height / (17 + (2 * 2)); // totalSteps + 2 * verticalPadding in steps
+  const lineSpacing = calculatedStepHeight * 2;
+
+  const staffHeight = 4 * lineSpacing;
+
+  const { noteVerticalPositions, notesWithLedgerLines, clefSymbol, clefTopOffset, clefLeftOffset, totalSteps } = getClefSpecificData(clefType, calculatedStepHeight);
 
   const minNotePosition = 0;
-  const maxNotePosition = 17 * calculatedStepHeight;
+  const maxNotePosition = totalSteps * calculatedStepHeight;
   const totalNoteSpanHeight = maxNotePosition - minNotePosition;
 
   const verticalPadding = 2 * calculatedStepHeight;
@@ -204,17 +225,17 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
           top: `${staffContainerTopOffset}px`,
         }}
       >
-        {/* Treble Clef */}
+        {/* Clef */}
         <div
           className={`absolute left-0 text-5xl font-serif ${clefColor}`}
           style={{
-            top: `${staffHeight / 2 - 25}px`, // Adjust clef position based on new scaling
+            top: clefTopOffset,
+            left: clefLeftOffset,
             lineHeight: '1',
             zIndex: 10,
           }}
-        >
-          &#x1D11E;
-        </div>
+          dangerouslySetInnerHTML={{ __html: clefSymbol }}
+        ></div>
 
         {/* Key Signature */}
         <div className="absolute left-12 flex items-center" style={{ zIndex: 10 }}>

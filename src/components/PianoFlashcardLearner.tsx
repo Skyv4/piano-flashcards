@@ -139,6 +139,38 @@ const PianoFlashcardLearner: React.FC = () => {
     <div className="flex flex-col items-center justify-start min-h-screen p-4">
       <h1 className="text-4xl font-bold mb-8">Piano Flashcard Learner</h1>
 
+      {currentNote !== null && (
+        <div className="bg-gray-100 rounded-lg shadow-lg p-6 mb-8 w-full max-w-sm">
+          <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Find this note</h2>
+          <SheetMusicStaff 
+            midiNumbers={[currentNote]} 
+            noteHeadSize={30} 
+            stemWidth={3} 
+            stemLength={60} 
+            ledgerLineLength={40} 
+            clefColor="text-gray-800"
+            sharpsAndFlats={getKeySignatureAccidentals(activeNoteSet ? activeNoteSet.name : '')}
+            hideNoteLetter={isDrillMode}
+            clefType={clefMode}
+          />
+        </div>
+      )}
+
+      <div className="w-full max-w-4xl mb-8">
+        <CustomKeyboard
+          noteRange={noteRange}
+          onPlayNoteInput={onPlayNote}
+          onStopNoteInput={onStopNote}
+          width={800}
+          keyWidthToHeight={0.3}
+          activeNotes={highlightKeyHint && currentNote !== null ? [currentNote] : []}
+          hoveredNote={hoveredNote}
+          onMouseEnter={setHoveredNote}
+          onMouseLeave={setHoveredNote}
+          showNoteLabels={labelNotesHint}
+        />
+      </div>
+
       <div className="flex flex-row items-start w-full max-w-4xl mb-8"> {/* New parent div for flex row */}
         <div className="flex flex-col items-start flex-grow"> {/* Left column for controls */}
           {/* New Drill Mode Selection */}
@@ -199,23 +231,6 @@ const PianoFlashcardLearner: React.FC = () => {
         )}
       </div>
 
-      {currentNote !== null && (
-        <div className="bg-gray-100 rounded-lg shadow-lg p-6 mb-8 w-full max-w-sm">
-          <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Find this note</h2>
-          <SheetMusicStaff 
-            midiNumbers={[currentNote]} 
-            noteHeadSize={30} 
-            stemWidth={3} 
-            stemLength={60} 
-            ledgerLineLength={40} 
-            clefColor="text-gray-800"
-            sharpsAndFlats={getKeySignatureAccidentals(activeNoteSet ? activeNoteSet.name : '')}
-            hideNoteLetter={isDrillMode}
-            clefType={clefMode}
-          />
-        </div>
-      )}
-
       {feedback && (
         <div className={`mb-8 text-xl ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'}`}>
           {feedback}
@@ -248,21 +263,6 @@ const PianoFlashcardLearner: React.FC = () => {
             <span className="slider"></span>
           </label>
         </div>
-      </div>
-
-      <div className="w-full max-w-4xl">
-        <CustomKeyboard
-          noteRange={noteRange}
-          onPlayNoteInput={onPlayNote}
-          onStopNoteInput={onStopNote}
-          width={800}
-          keyWidthToHeight={0.3}
-          activeNotes={highlightKeyHint && currentNote !== null ? [currentNote] : []}
-          hoveredNote={hoveredNote}
-          onMouseEnter={setHoveredNote}
-          onMouseLeave={setHoveredNote}
-          showNoteLabels={labelNotesHint}
-        />
       </div>
     </div>
   );

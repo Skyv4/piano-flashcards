@@ -15,6 +15,7 @@ const PianoFlashcardLearner: React.FC = () => {
   
   const [currentNote, setCurrentNote] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showFeedback, setShowFeedback] = useState<boolean>(false);
   const [activeNotes, setActiveNotes] = useState<number[]>([]);
   const [selectedNoteSetId, setSelectedNoteSetId] = useState<string>('c-major-scale'); // Added state for selected note set
   const [isDrillMode, setIsDrillMode] = useState<boolean>(false);
@@ -93,9 +94,11 @@ const PianoFlashcardLearner: React.FC = () => {
     if (isDrillMode) {
       if (midiNumber === currentNote) {
         setFeedback('Correct!');
+        setShowFeedback(true);
         setCorrectAnswers(prev => prev + 1);
       } else {
         setFeedback('Incorrect.');
+        setShowFeedback(true);
       }
       setCurrentQuestionIndex(prev => prev + 1);
 
@@ -107,6 +110,7 @@ const PianoFlashcardLearner: React.FC = () => {
         // Drill finished
         setTimeout(() => {
           setFeedback(`Drill finished! You scored ${correctAnswers + (midiNumber === currentNote ? 1 : 0)} out of 10.`);
+          setShowFeedback(true);
           setIsDrillMode(false);
           setCurrentNote(null);
           setActiveNotes([]);
@@ -116,14 +120,27 @@ const PianoFlashcardLearner: React.FC = () => {
       // Flashcard mode
       if (midiNumber === currentNote) {
         setFeedback('Correct!');
+        setShowFeedback(true);
         setTimeout(() => {
           generateQuestion();
         }, 1000);
       } else {
         setFeedback('Try again!');
+        setShowFeedback(true);
       }
     }
   };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (feedback && showFeedback) {
+      timer = setTimeout(() => {
+        setFeedback(null);
+        setShowFeedback(false);
+      }, 1500); // Message visible for 1.5 seconds
+    }
+    return () => clearTimeout(timer);
+  }, [feedback, showFeedback]);
 
   const onStopNote = () => {};
 
@@ -231,8 +248,8 @@ const PianoFlashcardLearner: React.FC = () => {
         )}
       </div>
 
-      {feedback && (
-        <div className={`mb-8 text-xl ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'}`}>
+      {feedback && showFeedback && (
+        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold transition-opacity duration-500 ease-in-out ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'} opacity-100`}>
           {feedback}
         </div>
       )}

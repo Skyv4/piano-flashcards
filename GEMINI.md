@@ -50,20 +50,9 @@ When making changes or adding features, consider the following:
 
 **Summary:** Implemented a clef toggle in `PianoFlashcardLearner.tsx` that allows users to switch between treble and bass clef perspectives. `SheetMusicStaff.tsx` was updated to dynamically render the appropriate clef and adjust note positioning based on the selected clef. The `NoteSet` interface in `src/utils/noteSets.ts` was extended with a `clef` property, and `PREDEFINED_NOTE_SETS` were updated to include clef-specific assignments. The available drill sets are now filtered based on the active clef mode.
 
-### TODO 2: Re-arrange UI Elements
+### TODO 2: Re-arrange UI Elements (COMPLETED)
 
-**Goal:** Move the "Find this Note" display, control buttons, and the piano keyboard to the top of the page in `PianoFlashcardLearner.tsx`.
-
-**Exact Instructions:**
-
-1.  **Modify `src/components/PianoFlashcardLearner.tsx`:**
-    *   Locate the main `div` element that wraps the entire content of the `PianoFlashcardLearner` component.
-    *   Identify the JSX blocks corresponding to:
-        *   The "Find this Note" display (the `SheetMusicStaff` component).
-        *   The control buttons (e.g., "Start Drill", "Select Drill Set").
-        *   The `CustomKeyboard` component.
-    *   Reorder these JSX blocks within the main container to place them at the top of the component's render output.
-    *   Adjust existing Tailwind CSS classes (e.g., `flex`, `flex-col`, `justify-center`, `items-center`, `mb-X`, `mt-X`) on the parent and child `div` elements to ensure the new layout is visually appealing and responsive. Pay close attention to vertical spacing and alignment.
+**Summary:** The "Find this Note" display, control buttons, and the piano keyboard were re-arranged in `PianoFlashcardLearner.tsx` to move the display and keyboard to the top of the page, with controls below them. Layout and styling were adjusted accordingly.
 
 ### TODO 3: Animate Feedback Messages
 

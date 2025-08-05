@@ -76,6 +76,16 @@ export const PREDEFINED_NOTE_SETS: NoteSet[] = [
     midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('eb4')), // Eb4 to Eb5
   },
   {
+    id: 'e-flat-major-scale',
+    name: 'E-flat Major',
+    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('eb4')),
+  },
+  {
+    id: 'chromatic-scale',
+    name: 'Chromatic Scale (C4-C5)',
+    midiNumbers: generateMidiRange('c4', 'c5'),
+  },
+  {
     id: 'middle-c-to-g',
     name: 'Middle C to G (C4-G4)',
     midiNumbers: generateMidiRange('c4', 'g4'),

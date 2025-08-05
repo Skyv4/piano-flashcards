@@ -3,18 +3,20 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Keyboard, KeyboardShortcuts, MidiNumbers } from 'react-piano';
 import 'react-piano/dist/styles.css';
-import SheetMusicDisplay from './SheetMusicDisplay';
-import { PREDEFINED_NOTE_SETS, NoteSet } from '../utils/noteSets';
+import SheetMusicStaff from './SheetMusicStaff';
 import NoteSetDisplay from './NoteSetDisplay';
-import { getNoteName, getMajorScaleNotes } from '../utils/noteUtils';
+import { PREDEFINED_NOTE_SETS, NoteSet } from '../utils/noteSets';
+import { getKeySignatureAccidentals } from '../utils/noteUtils';
 
 const PianoFlashcardLearner: React.FC = () => {
+  
   const [currentNote, setCurrentNote] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [activeNotes, setActiveNotes] = useState<number[]>([]);
-  const [mode, setMode] = useState<'note' | 'scale'>('note');
-  const [selectedNoteSetId, setSelectedNoteSetId] = useState<string>('all-notes'); // Default to 'All Notes'
-  const [availableNoteSets, setAvailableNoteSets] = useState<NoteSet[]>(PREDEFINED_NOTE_SETS);
+  const [selectedNoteSetId, setSelectedNoteSetId] = useState<string>('c-major-scale'); // Added state for selected note set
+  
+     // Default to 'All Notes'
+  const [availableNoteSets] = useState<NoteSet[]>(PREDEFINED_NOTE_SETS);
 
   const noteRange = useMemo(() => ({
     first: MidiNumbers.fromNote('c3'),
@@ -25,8 +27,7 @@ const PianoFlashcardLearner: React.FC = () => {
 
   const generateQuestion = useCallback(() => {
     setFeedback(null);
-    if (mode === 'note') {
-      const currentSet = availableNoteSets.find(set => set.id === selectedNoteSetId);
+    const currentSet = availableNoteSets.find(set => set.id === selectedNoteSetId);
 
       if (!currentSet || currentSet.midiNumbers.length === 0) {
         // Fallback: If selected set is not found or empty, use 'all-notes'
@@ -48,30 +49,17 @@ const PianoFlashcardLearner: React.FC = () => {
       setCurrentNote(currentSet.midiNumbers[randomIndex]);
       setActiveNotes([currentSet.midiNumbers[randomIndex]]);
 
-    } else if (mode === 'scale') {
-      // Existing scale generation logic remains unchanged for this iteration.
-      // It will continue to generate random major scales within its defined range.
-      const rootNotes = [];
-      for (let i = MidiNumbers.fromNote('c3'); i <= MidiNumbers.fromNote('b4'); i++) {
-        rootNotes.push(i);
-      }
-      const randomRootIndex = Math.floor(Math.random() * rootNotes.length);
-      const randomRootNote = rootNotes[randomRootIndex];
-      const scaleNotes = getMajorScaleNotes(randomRootNote); // This getMajorScaleNotes is from the component, not the new util
-      setCurrentNote(randomRootNote);
-      setActiveNotes(scaleNotes);
-    }
-  }, [mode, noteRange, setCurrentNote, setActiveNotes, setFeedback, selectedNoteSetId, availableNoteSets]);
+    
+  }, [setCurrentNote, setActiveNotes, setFeedback, selectedNoteSetId, availableNoteSets]);
 
   useEffect(() => {
     generateQuestion();
-  }, [mode, generateQuestion, selectedNoteSetId]); // Added selectedNoteSetId
+  }, [generateQuestion, selectedNoteSetId]); // Added selectedNoteSetId
 
-  const [playedNotesInScale, setPlayedNotesInScale] = useState<number[]>([]);
+  
 
   const onPlayNote = (midiNumber: number) => {
-    if (mode === 'note') {
-      if (currentNote === null) return;
+    if (currentNote === null) return;
 
       if (midiNumber === currentNote) {
         setFeedback('Correct!');
@@ -81,37 +69,13 @@ const PianoFlashcardLearner: React.FC = () => {
       } else {
         setFeedback('Try again!');
       }
-    } else if (mode === 'scale') {
-      const newPlayedNotes = [...playedNotesInScale, midiNumber];
-      setPlayedNotesInScale(newPlayedNotes);
-
-      // Check if all notes of the scale have been played and no extra notes
-      const sortedActiveNotes = [...activeNotes].sort((a, b) => a - b);
-      const sortedPlayedNotes = [...newPlayedNotes].sort((a, b) => a - b);
-
-      const isCorrect = sortedActiveNotes.length === sortedPlayedNotes.length &&
-                        sortedActiveNotes.every((note, index) => note === sortedPlayedNotes[index]);
-
-      if (isCorrect) {
-        setFeedback('Correct Scale!');
-        setTimeout(() => {
-          setPlayedNotesInScale([]);
-          generateQuestion();
-        }, 1000);
-      } else if (sortedPlayedNotes.length > sortedActiveNotes.length) {
-        setFeedback('Too many notes! Try again.');
-      } else {
-        setFeedback('Keep playing the scale...');
-      }
     }
-  };
-
-  const resetScaleAttempt = () => {
-    setPlayedNotesInScale([]);
-    setFeedback(null);
-  };
 
   const onStopNote = () => {};
+
+  const activeNoteSet = useMemo(() => {
+    return availableNoteSets.find(set => set.id === selectedNoteSetId);
+  }, [selectedNoteSetId, availableNoteSets]);
 
   const displayedNoteSet = useMemo(() => {
     return availableNoteSets.find(set => set.id === selectedNoteSetId);
@@ -121,71 +85,52 @@ const PianoFlashcardLearner: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <h1 className="text-4xl font-bold mb-8">Piano Flashcard Learner</h1>
 
-      <div className="mb-4">
-        <button
-          className={`px-4 py-2 rounded-md ${mode === 'note' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setMode('note')}
-        >
-          Note Identification
-        </button>
-        <button
-          className={`ml-4 px-4 py-2 rounded-md ${mode === 'scale' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setMode('scale')}
-        >
-          Major Scale Identification
-        </button>
+      <div className="flex flex-row items-start mb-8"> {/* New parent div for flex column */}
+        {/* New Drill Mode Selection */}
+        <div className="flex flex-row items-center mb-4"> {/* Added flex-row and mb-4 for spacing */}
+          <label htmlFor="drill-set-select" className="text-lg mr-2 text-gray-300">Select Drill Set:</label>
+          <select
+            id="drill-set-select"
+            className="px-3 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={selectedNoteSetId}
+            onChange={(e) => setSelectedNoteSetId(e.target.value)}
+          >
+            {availableNoteSets.map(set => (
+              <option key={set.id} value={set.id}>{set.name}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Display selected note set notes - "Everglade of possibilities" */}
+        {displayedNoteSet && displayedNoteSet.id !== 'all-notes' && (
+          <NoteSetDisplay
+            midiNumbers={displayedNoteSet.midiNumbers}
+            name={displayedNoteSet.name}
+            title={`Notes in ${displayedNoteSet.name}`}
+            
+          />
+        )}
       </div>
 
-      {/* New Drill Mode Selection */}
-      <div className="mb-8">
-        <label htmlFor="drill-set-select" className="text-lg mr-2 text-gray-300">Select Drill Set:</label>
-        <select
-          id="drill-set-select"
-          className="px-3 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={selectedNoteSetId}
-          onChange={(e) => setSelectedNoteSetId(e.target.value)}
-        >
-          {availableNoteSets.map(set => (
-            <option key={set.id} value={set.id}>{set.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Display selected note set notes - "Everglade of possibilities" */}
-      {displayedNoteSet && displayedNoteSet.id !== 'all-notes' && (
-        <NoteSetDisplay
-          midiNumbers={displayedNoteSet.midiNumbers}
-          title={`Notes in ${displayedNoteSet.name}`}
-          
-        />
-      )}
-
-      {mode === 'note' && currentNote !== null && (
-        <div className="mb-8">
-          <SheetMusicDisplay 
-            midiNumber={currentNote} 
+      {currentNote !== null && (
+        <div className="bg-gray-100 rounded-lg shadow-lg p-6 mb-8 w-full max-w-sm">
+          <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Find this note</h2>
+          <SheetMusicStaff 
+            midiNumbers={[currentNote]} 
             noteHeadSize={30} 
             stemWidth={3} 
             stemLength={60} 
             ledgerLineLength={40} 
+            clefColor="text-gray-800"
+            sharpsAndFlats={getKeySignatureAccidentals(activeNoteSet ? activeNoteSet.name : '')}
           />
         </div>
       )}
 
-      {mode === 'scale' && currentNote !== null && (
-        <div className="mb-8 text-2xl">
-          Play the <span className="font-semibold">{getNoteName(currentNote)} Major Scale</span>
-          <button
-            className="ml-4 px-3 py-1 rounded-md bg-gray-300 text-gray-800 text-base"
-            onClick={resetScaleAttempt}
-          >
-            Reset
-          </button>
-        </div>
-      )}
+      
 
       {feedback && (
-        <div className={`mb-8 text-xl ${feedback === 'Correct!' || feedback === 'Correct Scale!' ? 'text-green-500' : 'text-red-500'}`}>
+        <div className={`mb-8 text-xl ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'}`}>
           {feedback}
         </div>
       )}

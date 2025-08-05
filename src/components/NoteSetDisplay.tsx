@@ -2,14 +2,15 @@
 
 import React from 'react';
 import { getNoteName, getKeySignatureAccidentals } from '../utils/noteUtils'; // Import the centralized utility
-import MultiNoteSheetMusicDisplay from './MultiNoteSheetMusicDisplay'; // Import MultiNoteSheetMusicDisplay
+import SheetMusicStaff from './SheetMusicStaff'; // Import MultiNoteSheetMusicDisplay
 
 interface NoteSetDisplayProps {
   midiNumbers: number[];
   title: string;
+  name: string;
 }
 
-const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title }) => {
+const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title, name }) => {
   if (!midiNumbers || midiNumbers.length === 0) {
     return null; // Don't render if no notes are provided
   }
@@ -22,17 +23,18 @@ const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title }) =
       <div className="flex flex-wrap justify-center gap-4">
         {/* Display note names above the single SheetMusicDisplay */}
         <div className="flex justify-center w-full mb-4">
-          {midiNumbers.map((midi, index) => (
+          {midiNumbers.map((midi) => (
             <span key={midi} className="text-sm text-gray-300 mx-2">{getNoteName(midi)}</span>
           ))}
         </div>
-        <MultiNoteSheetMusicDisplay 
+        <SheetMusicStaff 
           midiNumbers={midiNumbers} 
           noteHeadSize={30} 
           stemWidth={3} 
           stemLength={60} 
           ledgerLineLength={40} 
-          keySignature={keySignature}
+          clefColor="text-white"
+          sharpsAndFlats={getKeySignatureAccidentals(name)}
         />
       </div>
     </div>

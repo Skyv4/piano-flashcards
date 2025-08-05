@@ -14,14 +14,29 @@ export const getMajorScaleNotes = (rootMidiNumber: number): number[] => {
 
 // This is a simplified function for demonstration. A full implementation would cover all keys.
 export const getKeySignatureAccidentals = (scaleName: string): { symbol: string; midiNumber: number }[] => {
-  if (scaleName === 'E-flat Major') {
-    // E-flat Major has 3 flats: B♭, E♭, A♭
-    // Using MIDI numbers for a common octave (e.g., around C4/Middle C)
-    return [
-      { symbol: '♭', midiNumber: 70 }, // B♭4
-      { symbol: '♭', midiNumber: 63 }, // E♭4
-      { symbol: '♭', midiNumber: 68 }, // A♭4
-    ];
+  switch (scaleName) {
+    case 'G Major Scale':
+      return [{ symbol: '♯', midiNumber: 77 }]; // F#5 on F5 line
+    case 'D Major Scale':
+      return [
+        { symbol: '♯', midiNumber: 77 }, // F#5
+        { symbol: '♯', midiNumber: 72 }, // C#5
+      ];
+    case 'F Major Scale':
+      return [{ symbol: '♭', midiNumber: 71 }]; // Bb4 on B4 line
+    case 'Bb Major Scale':
+      return [
+        { symbol: '♭', midiNumber: 71 }, // Bb4
+        { symbol: '♭', midiNumber: 64 }, // Eb4
+      ];
+    case 'E-flat Major':
+    case 'Eb Major Scale':
+      return [
+        { symbol: '♭', midiNumber: 71 }, // Bb4 on B4 line
+        { symbol: '♭', midiNumber: 64 }, // Eb4 on E4 space
+        { symbol: '♭', midiNumber: 69 }, // Ab4 on A4 space
+      ];
+    default:
+      return [];
   }
-  return [];
 };

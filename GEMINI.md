@@ -57,3 +57,26 @@ When making changes or adding features, consider the following:
 ### TODO 3: Animate Feedback Messages (COMPLETED)
 
 **Summary:** Implemented state-driven animation for feedback messages in `PianoFlashcardLearner.tsx`. Added a `showFeedback` state and `useEffect` to control the visibility and auto-hide the messages after a short duration. Applied Tailwind CSS classes for fade-in/fade-out effect and centering.
+
+### TODO 4: Enhance Feedback Message Visuals
+
+**Goal:** Enhance the visual presentation of the feedback message ("Correct!" or "Incorrect.") by adding a background, padding, and styling to make it appear as a "wafer / welcoming chunk of information" to engage the user.
+
+**Exact Instructions:**
+
+1.  **Modify `src/components/PianoFlashcardLearner.tsx`:**
+    *   Locate the `div` element that displays the `feedback` message:
+        ```jsx
+        {feedback && showFeedback && (
+          <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold transition-opacity duration-500 ease-in-out ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'} opacity-100`}>
+            {feedback}
+          </div>
+        )}
+        ```
+    *   Add Tailwind CSS classes to this `div` to give it a background color, padding, rounded corners, and a subtle shadow. For example:
+        *   `bg-gray-800` (or `bg-green-800` for correct, `bg-red-800` for incorrect) for the background.
+        *   `p-4` or `p-6` for padding.
+        *   `rounded-lg` or `rounded-xl` for rounded corners.
+        *   `shadow-lg` for a subtle shadow.
+    *   Ensure the text color within this `div` contrasts well with the new background. You might need to explicitly set `text-white` or `text-gray-100`.
+    *   Consider adjusting the `z-index` if necessary to ensure it overlays other elements correctly (e.g., `z-50`).

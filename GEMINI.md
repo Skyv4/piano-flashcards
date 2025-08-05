@@ -43,3 +43,71 @@ When making changes or adding features, consider the following:
 
 - **Absolute Paths**: When using file system tools, always provide absolute paths (e.g., `/home/a112/Documents/Code/me/piano-learner/src/components/SheetMusicDisplay.tsx`).
 - **Context**: Always read relevant files and understand the existing code patterns before making modifications.
+
+## Future TODOs
+
+### TODO 1: Implement Treble Clef Perspective and Toggle
+
+**Goal:** Allow users to switch between bass and treble clef perspectives, which will influence the available drill sets.
+
+**Exact Instructions:**
+
+1.  **Modify `src/components/SheetMusicStaff.tsx`:**
+    *   Add a new prop `clefType: 'bass' | 'treble'` to the `SheetMusicStaffProps` interface.
+    *   Inside the `SheetMusicStaff` component, use this `clefType` prop to conditionally render the appropriate clef image (e.g., using an `<img>` tag or a dedicated SVG component). You might need to import or define SVG paths for both clefs.
+    *   Adjust the vertical positioning logic for notes based on the `clefType`. The `noteVerticalPositions` mapping in `noteUtils.ts` (or a similar utility) will need to be extended or adapted to provide correct Y-coordinates for notes in both clefs. This might involve creating separate mappings for treble and bass clef, or a function that calculates position based on clef and MIDI number.
+
+2.  **Update `src/utils/noteUtils.ts`:**
+    *   If not already present, create or extend a utility function (e.g., `getNoteVerticalPosition(midiNumber: number, clefType: 'bass' | 'treble')`) that returns the correct Y-coordinate for a given MIDI note and clef. This function will be crucial for `SheetMusicStaff.tsx`.
+
+3.  **Add UI Toggle in `src/components/PianoFlashcardLearner.tsx`:**
+    *   Introduce a new state variable, e.g., `clefMode: 'bass' | 'treble'`, initialized to a default value.
+    *   Create a UI element (e.g., a toggle switch, radio buttons, or a dropdown) that allows the user to change the `clefMode` state.
+    *   Pass the `clefMode` state as the `clefType` prop to the `SheetMusicStaff` component.
+    *   **Crucially**, modify the logic for `availableNoteSets` and `selectedNoteSetId` to filter or load note sets relevant to the selected `clefMode`. This might involve:
+        *   Creating new `NoteSet` definitions in `src/utils/noteSets.ts` specifically for treble clef (e.g., `TREBLE_CLEF_NOTE_SETS`).
+        *   Conditionally setting `availableNoteSets` based on `clefMode`.
+        *   Ensuring that when `clefMode` changes, the `selectedNoteSetId` is reset to a valid default for the new clef, or that the `generateQuestion` logic correctly handles the change.
+
+### TODO 2: Re-arrange UI Elements
+
+**Goal:** Move the "Find this Note" display, control buttons, and the piano keyboard to the top of the page in `PianoFlashcardLearner.tsx`.
+
+**Exact Instructions:**
+
+1.  **Modify `src/components/PianoFlashcardLearner.tsx`:**
+    *   Locate the main `div` element that wraps the entire content of the `PianoFlashcardLearner` component.
+    *   Identify the JSX blocks corresponding to:
+        *   The "Find this Note" display (the `SheetMusicStaff` component).
+        *   The control buttons (e.g., "Start Drill", "Select Drill Set").
+        *   The `CustomKeyboard` component.
+    *   Reorder these JSX blocks within the main container to place them at the top of the component's render output.
+    *   Adjust existing Tailwind CSS classes (e.g., `flex`, `flex-col`, `justify-center`, `items-center`, `mb-X`, `mt-X`) on the parent and child `div` elements to ensure the new layout is visually appealing and responsive. Pay close attention to vertical spacing and alignment.
+
+### TODO 3: Animate Feedback Messages
+
+**Goal:** Make the "Correct!" or "Incorrect." feedback messages appear briefly with an animation and then disappear.
+
+**Exact Instructions:**
+
+1.  **Modify `src/components/PianoFlashcardLearner.tsx`:**
+    *   Locate the `feedback` display JSX block:
+        ```jsx
+        {feedback && (
+          <div className={`mb-8 text-xl ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'}`}>
+            {feedback}
+          </div>
+        )}
+        ```
+    *   **Implement a state for animation control:**
+        *   Add a new state variable, e.g., `showFeedback: boolean`, initialized to `false`.
+        *   When `setFeedback` is called, also set `showFeedback(true)`.
+    *   **Apply CSS for animation:**
+        *   Add Tailwind CSS classes or custom CSS to the feedback `div` for a fade-in/fade-out effect. This might involve:
+            *   `transition-opacity duration-500 ease-in-out` for smooth transitions.
+            *   `opacity-0` when `showFeedback` is `false` and `opacity-100` when `showFeedback` is `true`.
+        *   Consider adding `absolute` positioning and `top-X`, `left-1/2`, `transform -translate-x-1/2` to center the feedback message over the staff or keyboard.
+    *   **Implement auto-hide logic:**
+        *   Use `useEffect` to set a `setTimeout` when `feedback` is not `null` and `showFeedback` is `true`.
+        *   Inside the `setTimeout` callback, after a delay (e.g., 1000-1500ms), set `setFeedback(null)` and `showFeedback(false)` to hide the message.
+        *   Ensure the `useEffect` cleans up the timeout if the component unmounts or `feedback` changes before the timeout fires.

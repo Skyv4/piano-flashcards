@@ -35,8 +35,8 @@ interface CustomKeyProps {
   children?: React.ReactNode;
   noteRange: { first: number; last: number }; // Added noteRange prop
   isHovered: boolean; // New prop for hover state
-  onMouseEnter: () => void; // New prop for mouse enter event
-  onMouseLeave: () => void; // New prop for mouse leave event
+  onMouseEnter: (midiNumber: number) => void; // New prop for mouse enter event
+  onMouseLeave: (midiNumber: number | null) => void; // New prop for mouse leave event
 }
 
 class CustomKey extends React.Component<CustomKeyProps> {
@@ -111,8 +111,8 @@ class CustomKey extends React.Component<CustomKeyProps> {
         }}
         onMouseDown={useTouchEvents ? undefined : this.onPlayNoteInput}
         onMouseUp={useTouchEvents ? undefined : this.onStopNoteInput}
-        onMouseEnter={gliss ? this.onPlayNoteInput : onMouseEnter} // Use new onMouseEnter prop
-        onMouseLeave={onMouseLeave} // Use new onMouseLeave prop
+        onMouseEnter={gliss ? this.onPlayNoteInput : () => onMouseEnter(midiNumber)} // Use new onMouseEnter prop
+        onMouseLeave={gliss ? this.onStopNoteInput : () => onMouseLeave(null)} // Use new onMouseLeave prop, conditionally clear hovered note
         onTouchStart={useTouchEvents ? this.onPlayNoteInput : undefined}
         onTouchCancel={useTouchEvents ? this.onStopNoteInput : undefined}
         onTouchEnd={useTouchEvents ? this.onStopNoteInput : undefined}

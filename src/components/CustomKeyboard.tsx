@@ -25,6 +25,7 @@ interface CustomKeyboardProps {
   onMouseEnter: (midiNumber: number) => void; // New prop for mouse enter event
   onMouseLeave: (midiNumber: number | null) => void; // New prop for mouse leave event
   showNoteLabels?: boolean; // New prop to control note label visibility
+  highlightKeyHint: boolean; // New prop for highlight key hint
 }
 
 class CustomKeyboard extends React.Component<CustomKeyboardProps> {
@@ -74,7 +75,7 @@ class CustomKeyboard extends React.Component<CustomKeyboardProps> {
         {this.getMidiNumbers().map((midiNumber) => {
           const isAccidental = checkIsAccidental(midiNumber);
           const isActive = !this.props.disabled && this.props.activeNotes.includes(midiNumber);
-          const isHovered = this.props.hoveredNote === midiNumber; // Determine hover state
+          const isHovered = this.props.highlightKeyHint && this.props.hoveredNote === midiNumber; // Determine hover state conditionally
 
           return (
             <CustomKey
@@ -91,7 +92,7 @@ class CustomKeyboard extends React.Component<CustomKeyboardProps> {
               key={midiNumber}
               isHovered={isHovered} // Pass isHovered prop
               onMouseEnter={() => this.props.onMouseEnter(midiNumber)} // Pass onMouseEnter handler
-              onMouseLeave={() => this.props.onMouseLeave(midiNumber)} // Pass onMouseLeave handler
+              onMouseLeave={this.props.onMouseLeave} // Pass onMouseLeave handler directly
             >
               {this.props.disabled || !this.props.showNoteLabels
                 ? null

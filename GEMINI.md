@@ -52,7 +52,7 @@ When making changes or adding features, consider the following:
 
 ### TODO 2: Re-arrange UI Elements (COMPLETED)
 
-**Summary:** The "Find this Note" display, control buttons, and the piano keyboard were re-arranged in `PianoFlashcardLearner.tsx` to move the display and keyboard to the top of the page, with controls below them. Layout and styling were adjusted accordingly.
+**Summary:** The "Find this Note" display was moved to the left, and the "Select Clef", "Select Drill Set", and "Start Drill" buttons were grouped into a styled container to its right in `PianoFlashcardLearner.tsx`. The piano keyboard remains below these sections. Layout and styling were adjusted accordingly.
 
 ### TODO 3: Animate Feedback Messages (COMPLETED)
 

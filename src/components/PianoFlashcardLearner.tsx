@@ -64,7 +64,7 @@ const PianoFlashcardLearner: React.FC = () => {
 
     const randomIndex = Math.floor(Math.random() * currentSet.midiNumbers.length);
     setCurrentNote(currentSet.midiNumbers[randomIndex]);
-    setActiveNotes([currentSet.midiNumbers[randomIndex]]);
+    setActiveNotes(highlightKeyHint ? [currentSet.midiNumbers[randomIndex]] : []);
   }, [setCurrentNote, setActiveNotes, setFeedback, selectedNoteSetId, availableNoteSets]);
 
   const startDrill = useCallback(() => {
@@ -156,42 +156,26 @@ const PianoFlashcardLearner: React.FC = () => {
     <div className="flex flex-col items-center justify-start min-h-screen p-4">
       <h1 className="text-4xl font-bold mb-8">Piano Flashcard Learner</h1>
 
-      {currentNote !== null && (
-        <div className="bg-gray-100 rounded-lg shadow-lg p-6 mb-8 w-full max-w-sm">
-          <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Find this note</h2>
-          <SheetMusicStaff 
-            midiNumbers={[currentNote]} 
-            noteHeadSize={30} 
-            stemWidth={3} 
-            stemLength={60} 
-            ledgerLineLength={40} 
-            clefColor="text-gray-800"
-            sharpsAndFlats={getKeySignatureAccidentals(activeNoteSet ? activeNoteSet.name : '')}
-            hideNoteLetter={isDrillMode}
-            clefType={clefMode}
-          />
-        </div>
-      )}
-
-      <div className="w-full max-w-4xl mb-8">
-        <CustomKeyboard
-          noteRange={noteRange}
-          onPlayNoteInput={onPlayNote}
-          onStopNoteInput={onStopNote}
-          width={800}
-          keyWidthToHeight={0.3}
-          activeNotes={highlightKeyHint && currentNote !== null ? [currentNote] : []}
-          hoveredNote={hoveredNote}
-          onMouseEnter={setHoveredNote}
-          onMouseLeave={setHoveredNote}
-          showNoteLabels={labelNotesHint}
-        />
-      </div>
-
-      <div className="flex flex-row items-start w-full max-w-4xl mb-8"> {/* New parent div for flex row */}
-        <div className="flex flex-col items-start flex-grow"> {/* Left column for controls */}
-          {/* New Drill Mode Selection */}
-          <div className="flex flex-row items-center mb-4"> {/* Added flex-row and mb-4 for spacing */}
+      <div className="flex flex-row items-start w-full max-w-4xl mb-8"> {/* Container for FindThisNote and ControlPanel */}
+        {currentNote !== null && (
+          <div className="bg-gray-100 rounded-lg shadow-lg p-6 w-full max-w-sm mr-8"> {/* Find this note display */}
+            <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Find this note</h2>
+            <SheetMusicStaff 
+              midiNumbers={[currentNote]} 
+              noteHeadSize={30} 
+              stemWidth={3} 
+              stemLength={60} 
+              ledgerLineLength={40} 
+              clefColor="text-gray-800"
+              sharpsAndFlats={getKeySignatureAccidentals(activeNoteSet ? activeNoteSet.name : '')}
+              hideNoteLetter={isDrillMode}
+              clefType={clefMode}
+            />
+          </div>
+        )}
+        <div className="flex flex-col items-start flex-grow"> {/* Control Panel */}
+          {/* Clef Select */}
+          <div className="flex flex-col items-start mb-4">
             <label htmlFor="clef-select" className="text-lg mr-2 text-gray-300">Select Clef:</label>
             <select
               id="clef-select"
@@ -205,7 +189,8 @@ const PianoFlashcardLearner: React.FC = () => {
             </select>
           </div>
 
-          <div className="flex flex-row items-center mb-4"> {/* Added flex-row and mb-4 for spacing */}
+          {/* Drill Set Select */}
+          <div className="flex flex-col items-start mb-4">
             <label htmlFor="drill-set-select" className="text-lg mr-2 text-gray-300">Select Drill Set:</label>
             <select
               id="drill-set-select"
@@ -220,6 +205,7 @@ const PianoFlashcardLearner: React.FC = () => {
             </select>
           </div>
 
+          {/* Start Drill Button */}
           <button
             onClick={startDrill}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
@@ -228,14 +214,34 @@ const PianoFlashcardLearner: React.FC = () => {
             Start Drill (10 Questions)
           </button>
 
-          {/* Display selected note set notes - "Everglade of possibilities" */}
-          {displayedNoteSet && displayedNoteSet.id !== 'all-notes' && (
-            <NoteSetDisplay
-              midiNumbers={displayedNoteSet.midiNumbers}
-              name={displayedNoteSet.name}
-              title={`Notes in ${displayedNoteSet.name}`}
-            />
-          )}
+          {/* Hint Toggles */}
+          <div className="flex flex-col items-start mt-4">
+			<h1> Hints</h1>
+            <div className="flex flex-row-reverse items-start mb-2">
+              <label htmlFor="highlight-key-toggle" className="text-lg mr-2 text-gray-300">Highlight Key</label>
+              <label className="custom-switch">
+                <input
+                  type="checkbox"
+                  id="highlight-key-toggle"
+                  checked={highlightKeyHint}
+                  onChange={() => setHighlightKeyHint(!highlightKeyHint)}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+            <div className="flex flex-row-reverse items-start">
+              <label htmlFor="label-notes-toggle" className="text-lg mr-2 text-gray-300">Label Notes</label>
+              <label className="custom-switch">
+                <input
+                  type="checkbox"
+                  id="label-notes-toggle"
+                  checked={labelNotesHint}
+                  onChange={() => setLabelNotesHint(!labelNotesHint)}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+          </div>
         </div>
 
         {/* Right column for score and progress */}
@@ -248,39 +254,40 @@ const PianoFlashcardLearner: React.FC = () => {
         )}
       </div>
 
+      {/* Piano */}
+      <div className="w-full max-w-4xl mb-8 h-48">
+        <CustomKeyboard
+          noteRange={noteRange}
+          onPlayNoteInput={onPlayNote}
+          onStopNoteInput={onStopNote}
+          activeNotes={(!isDrillMode && highlightKeyHint && currentNote !== null) ? [currentNote] : []}
+          highlightedNote={highlightKeyHint ? currentNote : null}
+          labelNotes={labelNotesHint}
+          width={800}
+          onMouseEnter={(midiNumber) => setHoveredNote(midiNumber)}
+                    onMouseLeave={() => setHoveredNote(null)}
+          highlightKeyHint={highlightKeyHint}
+        />
+      </div>
+
+      {/* Note Set Display */}
+      {displayedNoteSet && displayedNoteSet.id !== 'all-notes' && (
+        <div className="w-full max-w-4xl mb-8">
+          <NoteSetDisplay
+            midiNumbers={displayedNoteSet.midiNumbers}
+            name={displayedNoteSet.name}
+            title={`Notes in ${displayedNoteSet.name}`}
+          />
+        </div>
+      )}
+
       {feedback && showFeedback && (
-        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold transition-opacity duration-500 ease-in-out ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'} opacity-100`}>
+        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 text-4xl font-bold transition-opacity duration-500 ease-in-out ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'} opacity-100 bg-gray-800 p-4 rounded-lg shadow-lg z-50`}>
           {feedback}
         </div>
       )}
 
-      {/* Hint Toggles */}
-      <div className="flex flex-col items-center mt-4 mb-8">
-        <div className="flex items-center mb-2">
-          <label htmlFor="highlight-key-toggle" className="text-lg mr-2 text-gray-300">Hint: Highlight Key</label>
-          <label className="custom-switch">
-            <input
-              type="checkbox"
-              id="highlight-key-toggle"
-              checked={highlightKeyHint}
-              onChange={() => setHighlightKeyHint(!highlightKeyHint)}
-            />
-            <span className="slider"></span>
-          </label>
-        </div>
-        <div className="flex items-center">
-          <label htmlFor="label-notes-toggle" className="text-lg mr-2 text-gray-300">Hint: Label Notes</label>
-          <label className="custom-switch">
-            <input
-              type="checkbox"
-              id="label-notes-toggle"
-              checked={labelNotesHint}
-              onChange={() => setLabelNotesHint(!labelNotesHint)}
-            />
-            <span className="slider"></span>
-          </label>
-        </div>
-      </div>
+      
     </div>
   );
 };

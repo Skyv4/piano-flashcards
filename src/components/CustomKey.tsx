@@ -1,4 +1,4 @@
-import { getNoteName, isAccidental as checkIsAccidental } from '../utils/noteUtils';
+
 
 import React from 'react';
 import classNames from 'classnames';

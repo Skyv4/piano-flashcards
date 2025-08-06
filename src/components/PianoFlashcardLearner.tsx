@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { KeyboardShortcuts, MidiNumbers } from 'react-piano';
+import { MidiNumbers } from 'react-piano';
 import CustomKeyboard from './CustomKeyboard';
 import 'react-piano/dist/styles.css';
 import SheetMusicStaff from './SheetMusicStaff';
 import NoteSetDisplay from './NoteSetDisplay';
-import { PREDEFINED_NOTE_SETS, NoteSet } from '../utils/noteSets';
-import { getKeySignatureAccidentals, getNoteName } from '../utils/noteUtils';
+import { PREDEFINED_NOTE_SETS } from '../utils/noteSets';
+import { getKeySignatureAccidentals } from '../utils/noteUtils';
 
 
 
@@ -65,7 +65,7 @@ const PianoFlashcardLearner: React.FC = () => {
     const randomIndex = Math.floor(Math.random() * currentSet.midiNumbers.length);
     setCurrentNote(currentSet.midiNumbers[randomIndex]);
     setActiveNotes(highlightKeyHint ? [currentSet.midiNumbers[randomIndex]] : []);
-  }, [setCurrentNote, setActiveNotes, setFeedback, selectedNoteSetId, availableNoteSets]);
+  }, [setCurrentNote, setActiveNotes, setFeedback, selectedNoteSetId, availableNoteSets, highlightKeyHint]);
 
   const startDrill = useCallback(() => {
     setIsDrillMode(true);
@@ -261,8 +261,8 @@ const PianoFlashcardLearner: React.FC = () => {
           onPlayNoteInput={onPlayNote}
           onStopNoteInput={onStopNote}
           activeNotes={(!isDrillMode && highlightKeyHint && currentNote !== null) ? [currentNote] : []}
-          highlightedNote={highlightKeyHint ? currentNote : null}
-          labelNotes={labelNotesHint}
+          hoveredNote={highlightKeyHint ? currentNote : null}
+          showNoteLabels={labelNotesHint}
           width={800}
           onMouseEnter={(midiNumber) => setHoveredNote(midiNumber)}
                     onMouseLeave={() => setHoveredNote(null)}

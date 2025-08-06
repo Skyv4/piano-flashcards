@@ -16,7 +16,7 @@ const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title, nam
     return null; // Don't render if no notes are provided
   }
 
-  const keySignature = getKeySignatureAccidentals(title);
+  
 
   return (
     <div className="w-full p-4 bg-gray-800 rounded-lg shadow-lg mb-8">

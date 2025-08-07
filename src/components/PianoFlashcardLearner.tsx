@@ -187,11 +187,11 @@ const PianoFlashcardLearner: React.FC = () => {
         )}
         <div className="flex flex-col items-start flex-grow bg-gray-800 p-6 rounded-lg shadow-lg"> {/* Control Panel */}
           {/* Clef Select */}
-          <div className="bg-gray-700 p-4 rounded-md shadow-md mb-4 w-full">
-            <label htmlFor="clef-select" className="text-lg mr-2 text-white">Select Clef:</label>
+          <div className="bg-gray-700 p-2 rounded-md shadow-md mb-2 w-full">
+            <label htmlFor="clef-select" className="text-base mr-2 text-white">Select Clef:</label>
             <select
               id="clef-select"
-              className="px-3 py-2 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              className="px-2 py-1 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
               value={clefMode}
               onChange={(e) => setClefMode(e.target.value as 'treble' | 'bass')}
               disabled={isDrillMode}
@@ -202,11 +202,11 @@ const PianoFlashcardLearner: React.FC = () => {
           </div>
 
           {/* Drill Set Select */}
-          <div className="bg-gray-700 p-4 rounded-md shadow-md mb-4 w-full">
-            <label htmlFor="drill-set-select" className="text-lg mr-2 text-white">Select Drill Set:</label>
+          <div className="bg-gray-700 p-2 rounded-md shadow-md mb-2 w-full">
+            <label htmlFor="drill-set-select" className="text-base mr-2 text-white">Select Drill Set:</label>
             <select
               id="drill-set-select"
-              className="px-3 py-2 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              className="px-2 py-1 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
               value={selectedNoteSetId}
               onChange={(e) => setSelectedNoteSetId(e.target.value)}
               disabled={isDrillMode}
@@ -218,10 +218,10 @@ const PianoFlashcardLearner: React.FC = () => {
           </div>
 
           {/* Start Drill Button */}
-          <div className="bg-gray-700 p-4 rounded-md shadow-md mb-4 w-full">
+          <div className="bg-gray-700 p-2 rounded-md shadow-md mb-2 w-full">
             <button
               onClick={startDrill}
-              className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-white ${isDrillMode ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+              className={`px-3 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-white ${isDrillMode ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
               disabled={isDrillMode}
             >
               {isDrillMode ? 'Drill Activated' : 'Start Drill (10 Questions)'}
@@ -229,10 +229,10 @@ const PianoFlashcardLearner: React.FC = () => {
           </div>
 
           {/* Hint Toggles */}
-          <div className="bg-gray-700 p-4 rounded-md shadow-md w-full">
-			<h1 className="text-white text-xl font-semibold mb-2">Hints</h1>
-            <div className="flex flex-row-reverse items-start mb-2">
-              <label htmlFor="highlight-key-toggle" className="text-lg mr-2 text-white">Highlight Key</label>
+          <div className="bg-gray-700 p-2 rounded-md shadow-md w-full">
+			<h1 className="text-white text-lg font-semibold mb-1">Hints</h1>
+            <div className="flex flex-row-reverse items-start mb-1">
+              <label htmlFor="highlight-key-toggle" className="text-base mr-2 text-white">Highlight Key</label>
               <label className="custom-switch">
                 <input
                   type="checkbox"
@@ -245,7 +245,7 @@ const PianoFlashcardLearner: React.FC = () => {
               </label>
             </div>
             <div className="flex flex-row-reverse items-start">
-              <label htmlFor="label-notes-toggle" className="text-lg mr-2 text-white">Label Notes</label>
+              <label htmlFor="label-notes-toggle" className="text-base mr-2 text-white">Label Notes</label>
               <label className="custom-switch">
                 <input
                   type="checkbox"

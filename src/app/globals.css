@@ -34,7 +34,7 @@ body {
 .ReactPiano__Key {
   position: absolute;
   box-sizing: border-box;
-  border: 1px solid #888; /* Light gray border */
+  border: none; /* No border for accidental keys */
   border-radius: 0 0 3px 3px; /* Rounded bottom corners */
   cursor: pointer;
   transition: background-color 0.1s ease; /* Smooth transition for hover */
@@ -49,7 +49,7 @@ body {
 
 /* Accidental (black) key styles */
 .ReactPiano__Key--accidental {
-  background-color: #333; /* Dark gray for black keys */
+  background-color: #000; /* 100% black for black keys */
   z-index: 2; /* Black keys are on top of white keys */
   height: 60%; /* Black keys are shorter */
   

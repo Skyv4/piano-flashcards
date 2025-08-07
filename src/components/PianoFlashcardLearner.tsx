@@ -177,6 +177,7 @@ const PianoFlashcardLearner: React.FC = () => {
 			selectedNoteSetId={selectedNoteSetId}
 			setSelectedNoteSetId={setSelectedNoteSetId}
 			drillModeHandleAnswerRef={drillModeHandleAnswerRef}
+			onClefModeChange={setClefMode}
 			/>
 
 			<div className="flex flex-col items-start ml-8">
@@ -209,7 +210,7 @@ const PianoFlashcardLearner: React.FC = () => {
       </div>
 
       {/* Note Set Display */}
-      {displayedNoteSet && displayedNoteSet.id !== 'all-notes' && (
+      {displayedNoteSet && displayedNoteSet.id !== 'all-notes' && !isDrillMode && (
         <div className="w-full max-w-4xl mb-8">
           <NoteSetDisplay
             midiNumbers={displayedNoteSet.midiNumbers}

@@ -20,6 +20,7 @@ interface DrillModeProps {
   selectedNoteSetId: string;
   setSelectedNoteSetId: (id: string) => void;
   drillModeHandleAnswerRef: React.MutableRefObject<((midiNumber: number) => void) | null>;
+  onClefModeChange: (clef: 'treble' | 'bass') => void;
 }
 
 const DrillMode: React.FC<DrillModeProps> = ({
@@ -36,6 +37,7 @@ const DrillMode: React.FC<DrillModeProps> = ({
   selectedNoteSetId,
   setSelectedNoteSetId,
   drillModeHandleAnswerRef,
+  onClefModeChange,
 }) => {
   const [currentDrill, setCurrentDrill] = useState<Drill | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -155,7 +157,7 @@ const DrillMode: React.FC<DrillModeProps> = ({
             id="clef-select"
             className="px-4 py-2 rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-colors duration-200 w-full text-base"
             value={clefMode}
-            onChange={(e) => { /* Clef change handled in parent */ }}
+            onChange={(e) => onClefModeChange(e.target.value as 'treble' | 'bass')}
             disabled={isDrillMode}
           >
             <option value="treble" className="font-medium">Treble Clef</option>

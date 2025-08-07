@@ -69,6 +69,22 @@ export const PREDEFINED_NOTE_SETS: NoteSet[] = [
     clef: 'treble',
   },
   {
+    id: 'lines-and-spaces',
+    name: 'Lines and Spaces (GBDFA & ACEG)',
+    midiNumbers: [
+      noteToMidi('g2'), // Bass Clef Lines
+      noteToMidi('b2'),
+      noteToMidi('d3'),
+      noteToMidi('f3'),
+      noteToMidi('a3'),
+      noteToMidi('a2'), // Bass Clef Spaces
+      noteToMidi('c3'),
+      noteToMidi('e3'),
+      noteToMidi('g3'),
+    ],
+    clef: 'both',
+  },
+  {
     id: 'g-major-scale',
     name: 'G Major Scale',
     midiNumbers: getMajorScaleNotes(noteToMidi('g4')), // G4 to G5
@@ -192,4 +208,4 @@ export const PREDEFINED_NOTE_SETS: NoteSet[] = [
     midiNumbers: getMajorScaleNotes(noteToMidi('f2')), // F2 to F3
     clef: 'bass',
   },
-];
+  ];

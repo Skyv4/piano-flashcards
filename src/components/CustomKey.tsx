@@ -39,7 +39,11 @@ interface CustomKeyProps {
   onMouseLeave: (midiNumber: number | null) => void; // New prop for mouse leave event
 }
 
-class CustomKey extends React.Component<CustomKeyProps> {
+interface CustomKeyState {
+  isPressed: boolean;
+}
+
+class CustomKey extends React.Component<CustomKeyProps, CustomKeyState> {
   static defaultProps = {
     accidentalWidthRatio: 0.65,
     disabled: false,
@@ -47,11 +51,20 @@ class CustomKey extends React.Component<CustomKeyProps> {
     useTouchEvents: false,
   };
 
+  constructor(props: CustomKeyProps) {
+    super(props);
+    this.state = {
+      isPressed: false,
+    };
+  }
+
   onPlayNoteInput = () => {
+    this.setState({ isPressed: true });
     this.props.onPlayNoteInput(this.props.midiNumber);
   };
 
   onStopNoteInput = () => {
+    this.setState({ isPressed: false });
     this.props.onStopNoteInput(this.props.midiNumber);
   };
 
@@ -100,6 +113,7 @@ class CustomKey extends React.Component<CustomKeyProps> {
           'ReactPiano__Key--disabled': disabled,
           'ReactPiano__Key--active': active,
           'hovered-key': isHovered, // Apply hovered-key class
+          'ReactPiano__Key--pressed': this.state.isPressed, // Apply pressed class
         })}
         style={{
           left: ratioToPercentage(

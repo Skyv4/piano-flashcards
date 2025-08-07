@@ -1,7 +1,5 @@
 // src/utils/noteSets.ts
 
-import { MidiNumbers } from 'react-piano';
-
 export interface NoteSet {
   id: string;
   name: string;
@@ -9,10 +7,37 @@ export interface NoteSet {
   clef: 'treble' | 'bass' | 'both';
 }
 
+// Helper to convert note name (e.g., "C4", "G#3", "Bb5") to MIDI number
+const noteToMidi = (note: string): number => {
+  const noteMap: { [key: string]: number } = {
+    'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3, 'E': 4, 'F': 5,
+    'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
+  };
+
+  const accidentalMatch = note.match(/^(C|D|E|F|G|A|B)(b|#)?(\d+)$/i);
+  if (!accidentalMatch) {
+    throw new Error(`Invalid note format: ${note}`);
+  }
+
+  const baseNote = accidentalMatch[1].toUpperCase();
+  const accidental = accidentalMatch[2];
+  const octave = parseInt(accidentalMatch[3], 10);
+
+  let semitones = noteMap[baseNote];
+  if (accidental === '#') {
+    semitones += 1;
+  } else if (accidental === 'b') {
+    semitones -= 1;
+  }
+
+  // MIDI number for C0 is 12. Each octave is 12 semitones.
+  return (octave + 1) * 12 + semitones;
+};
+
 // Helper to generate a range of MIDI numbers
 const generateMidiRange = (startNote: string, endNote: string): number[] => {
-  const startMidi = MidiNumbers.fromNote(startNote);
-  const endMidi = MidiNumbers.fromNote(endNote);
+  const startMidi = noteToMidi(startNote);
+  const endMidi = noteToMidi(endNote);
   const range: number[] = [];
   for (let i = startMidi; i <= endMidi; i++) {
     range.push(i);
@@ -40,78 +65,78 @@ export const PREDEFINED_NOTE_SETS: NoteSet[] = [
   {
     id: 'c-major-scale',
     name: 'C Major Scale',
-    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('c4')), // C4 to C5
-    clef: 'both',
+    midiNumbers: getMajorScaleNotes(noteToMidi('c4')), // C4 to C5
+    clef: 'treble',
   },
   {
     id: 'g-major-scale',
     name: 'G Major Scale',
-    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('g4')), // G4 to G5
-    clef: 'both',
+    midiNumbers: getMajorScaleNotes(noteToMidi('g4')), // G4 to G5
+    clef: 'treble',
   },
   {
     id: 'd-major-scale',
     name: 'D Major Scale',
-    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('d4')), // D4 to D5
-    clef: 'both',
+    midiNumbers: getMajorScaleNotes(noteToMidi('d4')), // D4 to D5
+    clef: 'treble',
   },
   {
     id: 'a-major-scale',
     name: 'A Major Scale',
-    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('a4')), // A4 to A5
-    clef: 'both',
+    midiNumbers: getMajorScaleNotes(noteToMidi('a4')), // A4 to A5
+    clef: 'treble',
   },
   {
     id: 'e-major-scale',
     name: 'E Major Scale',
-    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('e4')), // E4 to E5
-    clef: 'both',
+    midiNumbers: getMajorScaleNotes(noteToMidi('e4')), // E4 to E5
+    clef: 'treble',
   },
   {
     id: 'f-major-scale',
     name: 'F Major Scale',
-    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('f4')), // F4 to F5
-    clef: 'both',
+    midiNumbers: getMajorScaleNotes(noteToMidi('f4')), // F4 to F5
+    clef: 'treble',
   },
   {
     id: 'bb-major-scale',
     name: 'Bb Major Scale',
-    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('bb3')), // Bb3 to Bb4
-    clef: 'both',
+    midiNumbers: getMajorScaleNotes(noteToMidi('bb3')), // Bb3 to Bb4
+    clef: 'treble',
   },
   {
     id: 'eb-major-scale',
     name: 'Eb Major Scale',
-    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('eb4')), // Eb4 to Eb5
-    clef: 'both',
+    midiNumbers: getMajorScaleNotes(noteToMidi('eb4')), // Eb4 to Eb5
+    clef: 'treble',
   },
   {
     id: 'e-flat-major-scale',
     name: 'E-flat Major',
-    midiNumbers: getMajorScaleNotes(MidiNumbers.fromNote('eb4')),
-    clef: 'both',
+    midiNumbers: getMajorScaleNotes(noteToMidi('eb4')),
+    clef: 'treble',
   },
   {
     id: 'chromatic-scale',
     name: 'Chromatic Scale (C4-C5)',
     midiNumbers: generateMidiRange('c4', 'c5'),
-    clef: 'both',
+    clef: 'treble',
   },
   {
     id: 'middle-c-to-g',
     name: 'Middle C to G (C4-G4)',
     midiNumbers: generateMidiRange('c4', 'g4'),
-    clef: 'both',
+    clef: 'treble',
   },
   {
     id: 'treble-clef-lines',
     name: 'Treble Clef Lines (EGBDF)',
     midiNumbers: [
-      MidiNumbers.fromNote('e4'),
-      MidiNumbers.fromNote('g4'),
-      MidiNumbers.fromNote('b4'),
-      MidiNumbers.fromNote('d5'),
-      MidiNumbers.fromNote('f5'),
+      noteToMidi('e4'),
+      noteToMidi('g4'),
+      noteToMidi('b4'),
+      noteToMidi('d5'),
+      noteToMidi('f5'),
     ],
     clef: 'treble',
   },
@@ -119,10 +144,10 @@ export const PREDEFINED_NOTE_SETS: NoteSet[] = [
     id: 'treble-clef-spaces',
     name: 'Treble Clef Spaces (FACE)',
     midiNumbers: [
-      MidiNumbers.fromNote('f4'),
-      MidiNumbers.fromNote('a4'),
-      MidiNumbers.fromNote('c5'),
-      MidiNumbers.fromNote('e5'),
+      noteToMidi('f4'),
+      noteToMidi('a4'),
+      noteToMidi('c5'),
+      noteToMidi('e5'),
     ],
     clef: 'treble',
   },
@@ -130,11 +155,11 @@ export const PREDEFINED_NOTE_SETS: NoteSet[] = [
     id: 'bass-clef-lines',
     name: 'Bass Clef Lines (GBDFA)',
     midiNumbers: [
-      MidiNumbers.fromNote('g2'),
-      MidiNumbers.fromNote('b2'),
-      MidiNumbers.fromNote('d3'),
-      MidiNumbers.fromNote('f3'),
-      MidiNumbers.fromNote('a3'),
+      noteToMidi('g2'),
+      noteToMidi('b2'),
+      noteToMidi('d3'),
+      noteToMidi('f3'),
+      noteToMidi('a3'),
     ],
     clef: 'bass',
   },
@@ -142,11 +167,29 @@ export const PREDEFINED_NOTE_SETS: NoteSet[] = [
     id: 'bass-clef-spaces',
     name: 'Bass Clef Spaces (ACEG)',
     midiNumbers: [
-      MidiNumbers.fromNote('a2'),
-      MidiNumbers.fromNote('c3'),
-      MidiNumbers.fromNote('e3'),
-      MidiNumbers.fromNote('g3'),
+      noteToMidi('a2'),
+      noteToMidi('c3'),
+      noteToMidi('e3'),
+      noteToMidi('g3'),
     ],
+    clef: 'bass',
+  },
+  {
+    id: 'c-major-scale-bass',
+    name: 'C Major Scale (Bass Clef)',
+    midiNumbers: getMajorScaleNotes(noteToMidi('c3')), // C3 to C4
+    clef: 'bass',
+  },
+  {
+    id: 'g-major-scale-bass',
+    name: 'G Major Scale (Bass Clef)',
+    midiNumbers: getMajorScaleNotes(noteToMidi('g2')), // G2 to G3
+    clef: 'bass',
+  },
+  {
+    id: 'f-major-scale-bass',
+    name: 'F Major Scale (Bass Clef)',
+    midiNumbers: getMajorScaleNotes(noteToMidi('f2')), // F2 to F3
     clef: 'bass',
   },
 ];

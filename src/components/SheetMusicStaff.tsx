@@ -14,8 +14,6 @@ interface NoteProps {
   ledgerLineLength: number;
   keySignature?: { symbol: string; midiNumber: number }[];
   hideNoteLetter: boolean;
-  isSingleNote: boolean; // New prop
-  staffContainerHeight: number; // New prop
 }
 
 const Note: React.FC<NoteProps> = ({
@@ -30,8 +28,6 @@ const Note: React.FC<NoteProps> = ({
   ledgerLineLength,
   keySignature,
   hideNoteLetter,
-  isSingleNote,
-  staffContainerHeight,
 }) => {
   const notePosition = noteVerticalPositions[midiNumber];
 
@@ -55,9 +51,7 @@ const Note: React.FC<NoteProps> = ({
 
   const accidentalOffset = (accidentalSymbol && !isAccidentalInKeySignature) ? 15 : 0;
 
-  const calculatedTop = isSingleNote
-    ? (staffContainerHeight * 0.25) - (noteHeadSize / 2) // 1/4 down from top, adjusted for note head size
-    : notePosition + verticalPadding - (noteHeadSize / 2);
+  const calculatedTop = notePosition + verticalPadding - (noteHeadSize / 2);
 
   return (
     <>
@@ -147,6 +141,7 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
     let notesWithLedgerLines: number[];
     let clefSymbol: string;
     let totalSteps: number;
+    let initialNoteXOffset: number; // New variable
 
     if (clef === 'treble') {
       totalSteps = 17;
@@ -170,8 +165,9 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
         50: 16 * stepHeight, // D3
         48: 17 * stepHeight, // C3
       };
-      notesWithLedgerLines = [62, 60, 59, 57, 55, 53, 52, 50, 48];
+      notesWithLedgerLines = [79, 81, 83, 84, 86, 60, 57, 53, 50, 48]; // G5, B5, D6, E6, F6 (above staff); C4, A3, F3, D3, C3 (below staff)
       clefSymbol = '&#x1D11E;'; // Treble clef symbol
+      initialNoteXOffset = 50; // Default for treble clef
       
     } else { // bass clef
       totalSteps = 17; // This might need adjustment based on the actual range of notes for bass clef
@@ -194,11 +190,12 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
         35: 15 * stepHeight, // B1
         33: 16 * stepHeight, // A1
       };
-      notesWithLedgerLines = [60, 59, 57, 55, 53, 52, 50, 48, 47, 45, 43, 41, 40, 38, 36, 35, 33];
+      notesWithLedgerLines = [60, 62, 64, 65, 67, 47, 45, 43, 41, 40, 38, 36, 35, 33]; // C4, D4, E4, F4, G4 (above staff); B2, A2, G2, F2, E2, D2, C2, B1, A1 (below staff)
       clefSymbol = '&#x1D122;'; // Bass clef symbol
+      initialNoteXOffset = 70; // Adjusted for bass clef
       
     }
-    return { noteVerticalPositions, notesWithLedgerLines, clefSymbol, totalSteps };
+    return { noteVerticalPositions, notesWithLedgerLines, clefSymbol, totalSteps, initialNoteXOffset };
   };
 
   const staffDisplayHeight = height;
@@ -209,7 +206,7 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
 
   
 
-  const { noteVerticalPositions, notesWithLedgerLines, clefSymbol, totalSteps } = getClefSpecificData(clefType, calculatedStepHeight);
+  const { noteVerticalPositions, notesWithLedgerLines, clefSymbol, totalSteps, initialNoteXOffset } = getClefSpecificData(clefType, calculatedStepHeight);
 
   const minNotePosition = 0;
   const maxNotePosition = totalSteps * calculatedStepHeight;
@@ -231,7 +228,7 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
       >
         {/* Clef */}
         <div
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-serif ${clefColor}`}
+          className={`absolute left-0 top-[25%] text-5xl font-serif ${clefColor}`}
           style={{
             lineHeight: '1',
             zIndex: 10,
@@ -276,7 +273,7 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
           <Note
             key={midi}
             midiNumber={midi}
-            xOffset={midiNumbers.length === 1 ? (staffContainerHeight / 2) : (50 + (sharpsAndFlats ? sharpsAndFlats.length * 15 : 0) + index * (noteHeadSize + 10))}
+            xOffset={midiNumbers.length === 1 ? (staffContainerHeight / 2) : (initialNoteXOffset + (sharpsAndFlats ? sharpsAndFlats.length * 15 : 0) + index * (noteHeadSize + 10))}
             verticalPadding={verticalPadding}
             noteVerticalPositions={noteVerticalPositions}
             notesWithLedgerLines={notesWithLedgerLines}
@@ -286,8 +283,6 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
             ledgerLineLength={ledgerLineLength}
             keySignature={sharpsAndFlats}
             hideNoteLetter={hideNoteLetter}
-            isSingleNote={midiNumbers.length === 1}
-            staffContainerHeight={staffContainerHeight}
           />
         ))}
       </div>

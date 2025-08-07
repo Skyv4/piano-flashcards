@@ -9,9 +9,10 @@ interface NoteSetDisplayProps {
   midiNumbers: number[];
   title: string;
   name: string;
+  clefType?: 'bass' | 'treble'; // New prop
 }
 
-const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title, name }) => {
+const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title, name, clefType = 'treble' }) => {
   if (!midiNumbers || midiNumbers.length === 0) {
     return null; // Don't render if no notes are provided
   }
@@ -31,7 +32,7 @@ const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title, nam
             const noteLiteral = fullNoteName.match(/^[A-G](#|b)?/)?.[0] || '';
             const octaveNumber = fullNoteName.replace(noteLiteral, '');
             return (
-                            <span key={midi} className="text-lg font-bold mx-2">
+				<span key={midi} className="text-lg font-bold mx-2">
                 <span className={`${noteColorClass}`}>{noteLiteral}</span>
                 <span className="text-white">{octaveNumber}</span>
               </span>
@@ -46,6 +47,7 @@ const NoteSetDisplay: React.FC<NoteSetDisplayProps> = ({ midiNumbers, title, nam
           ledgerLineLength={40} 
           clefColor="text-white"
           sharpsAndFlats={getKeySignatureAccidentals(name)}
+          clefType={clefType}
         />
       </div>
     </div>

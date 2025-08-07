@@ -72,6 +72,8 @@ const PianoFlashcardLearner: React.FC = () => {
     setCurrentQuestionIndex(0);
     setCorrectAnswers(0);
     setShowScoreAndProgress(true);
+    setHighlightKeyHint(false); // Disable highlight hint
+    setLabelNotesHint(false); // Disable label notes hint
     generateQuestion();
   }, [generateQuestion]);
 
@@ -83,8 +85,18 @@ const PianoFlashcardLearner: React.FC = () => {
 
   useEffect(() => {
     // When clefMode changes, reset selectedNoteSetId to a valid default for the new clef
-    if (availableNoteSets.length > 0 && !availableNoteSets.some(set => set.id === selectedNoteSetId)) {
-      setSelectedNoteSetId(availableNoteSets[0].id);
+    if (availableNoteSets.length > 0) {
+      const currentSelectedSetExists = availableNoteSets.some(set => set.id === selectedNoteSetId);
+      if (!currentSelectedSetExists) {
+        // Try to find a clef-specific set first
+        const clefSpecificSet = availableNoteSets.find(set => set.clef === clefMode);
+        if (clefSpecificSet) {
+          setSelectedNoteSetId(clefSpecificSet.id);
+        } else {
+          // Fallback to the first available set if no clef-specific set is found
+          setSelectedNoteSetId(availableNoteSets[0].id);
+        }
+      }
     }
   }, [clefMode, availableNoteSets, selectedNoteSetId]);
 
@@ -208,10 +220,10 @@ const PianoFlashcardLearner: React.FC = () => {
           {/* Start Drill Button */}
           <button
             onClick={startDrill}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+            className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 ${isDrillMode ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
             disabled={isDrillMode}
           >
-            Start Drill (10 Questions)
+            {isDrillMode ? 'Drill Activated' : 'Start Drill (10 Questions)'}
           </button>
 
           {/* Hint Toggles */}
@@ -225,6 +237,7 @@ const PianoFlashcardLearner: React.FC = () => {
                   id="highlight-key-toggle"
                   checked={highlightKeyHint}
                   onChange={() => setHighlightKeyHint(!highlightKeyHint)}
+                  disabled={isDrillMode}
                 />
                 <span className="slider"></span>
               </label>
@@ -237,6 +250,7 @@ const PianoFlashcardLearner: React.FC = () => {
                   id="label-notes-toggle"
                   checked={labelNotesHint}
                   onChange={() => setLabelNotesHint(!labelNotesHint)}
+                  disabled={isDrillMode}
                 />
                 <span className="slider"></span>
               </label>
@@ -277,6 +291,7 @@ const PianoFlashcardLearner: React.FC = () => {
             midiNumbers={displayedNoteSet.midiNumbers}
             name={displayedNoteSet.name}
             title={`Notes in ${displayedNoteSet.name}`}
+            clefType={clefMode}
           />
         </div>
       )}

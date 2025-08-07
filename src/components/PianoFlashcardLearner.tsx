@@ -186,35 +186,37 @@ const PianoFlashcardLearner: React.FC = () => {
           </div>
         )}
         <div className="flex flex-col items-start flex-grow bg-gray-800 p-6 rounded-lg shadow-lg"> {/* Control Panel */}
-          {/* Clef Select */}
-          <div className="bg-gray-700 p-2 rounded-md shadow-md mb-2 w-full">
-            <label htmlFor="clef-select" className="text-base mr-2 text-white">Select Clef:</label>
-            <select
-              id="clef-select"
-              className="px-2 py-1 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-              value={clefMode}
-              onChange={(e) => setClefMode(e.target.value as 'treble' | 'bass')}
-              disabled={isDrillMode}
-            >
-              <option value="treble">Treble Clef</option>
-              <option value="bass">Bass Clef</option>
-            </select>
-          </div>
+          <div className="bg-gray-700 p-2 rounded-md shadow-md mb-2 w-full flex flex-col space-y-2">
+            {/* Clef Select */}
+            <div>
+              <label htmlFor="clef-select" className="text-base mr-2 text-white">Select Clef:</label>
+              <select
+                id="clef-select"
+                className="px-2 py-1 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                value={clefMode}
+                onChange={(e) => setClefMode(e.target.value as 'treble' | 'bass')}
+                disabled={isDrillMode}
+              >
+                <option value="treble">Treble Clef</option>
+                <option value="bass">Bass Clef</option>
+              </select>
+            </div>
 
-          {/* Drill Set Select */}
-          <div className="bg-gray-700 p-2 rounded-md shadow-md mb-2 w-full">
-            <label htmlFor="drill-set-select" className="text-base mr-2 text-white">Select Drill Set:</label>
-            <select
-              id="drill-set-select"
-              className="px-2 py-1 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-              value={selectedNoteSetId}
-              onChange={(e) => setSelectedNoteSetId(e.target.value)}
-              disabled={isDrillMode}
-            >
-              {availableNoteSets.map(set => (
-                <option key={set.id} value={set.id}>{set.name}</option>
-              ))}
-            </select>
+            {/* Drill Set Select */}
+            <div>
+              <label htmlFor="drill-set-select" className="text-base mr-2 text-white">Select Drill Set:</label>
+              <select
+                id="drill-set-select"
+                className="px-2 py-1 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                value={selectedNoteSetId}
+                onChange={(e) => setSelectedNoteSetId(e.target.value)}
+                disabled={isDrillMode}
+              >
+                {availableNoteSets.map(set => (
+                  <option key={set.id} value={set.id}>{set.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Start Drill Button */}

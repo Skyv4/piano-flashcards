@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { MidiNumbers } from 'react-piano';
 import CustomKeyboard from './CustomKeyboard';
 import 'react-piano/dist/styles.css';
@@ -8,24 +8,30 @@ import SheetMusicStaff from './SheetMusicStaff';
 import NoteSetDisplay from './NoteSetDisplay';
 import { PREDEFINED_NOTE_SETS } from '../utils/noteSets';
 import { getKeySignatureAccidentals } from '../utils/noteUtils';
-
+import DrillMode from './DrillMode';
+import HintControls from './HintControls';
+import StatsDisplay from './StatsDisplay';
+import { DrillService } from '../utils/drillService';
+import { useSearchParams } from 'next/navigation';
 
 
 const PianoFlashcardLearner: React.FC = () => {
-  
+  const searchParams = useSearchParams();
+  const initialDrillSetId = searchParams.get('drillSetId') || 'c-major-scale';
+
   const [currentNote, setCurrentNote] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState<boolean>(false);
   const [activeNotes, setActiveNotes] = useState<number[]>([]);
-  const [selectedNoteSetId, setSelectedNoteSetId] = useState<string>('c-major-scale'); // Added state for selected note set
+  const [selectedNoteSetId, setSelectedNoteSetId] = useState<string>(initialDrillSetId);
   const [isDrillMode, setIsDrillMode] = useState<boolean>(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [correctAnswers, setCorrectAnswers] = useState<number>(0);
-  const [showScoreAndProgress, setShowScoreAndProgress] = useState<boolean>(false);
   const [hoveredNote, setHoveredNote] = useState<number | null>(null);
   const [highlightKeyHint, setHighlightKeyHint] = useState<boolean>(false);
   const [labelNotesHint, setLabelNotesHint] = useState<boolean>(false);
   const [clefMode, setClefMode] = useState<'treble' | 'bass'>('treble');
+
+  // Ref to hold the DrillMode's handleAnswer function
+  const drillModeHandleAnswerRef = useRef<((midiNumber: number) => void) | null>(null);
 
   const availableNoteSets = useMemo(() => {
     return PREDEFINED_NOTE_SETS.filter(set => {
@@ -42,15 +48,13 @@ const PianoFlashcardLearner: React.FC = () => {
     last: MidiNumbers.fromNote('f5'),
   }), []);
 
-  
-
-  const generateQuestion = useCallback(() => {
+  const generateFlashcardQuestion = useCallback(() => {
     setFeedback(null);
     const currentSet = availableNoteSets.find(set => set.id === selectedNoteSetId);
 
     if (!currentSet || currentSet.midiNumbers.length === 0) {
       console.warn('Selected note set not found or is empty. Falling back to "All Notes".');
-      const allNotesSet = availableNoteSets.find(set => set.id === 'all-notes');
+      const allNotesSet = PREDEFINED_NOTE_SETS.find(set => set.id === 'all-notes');
       if (allNotesSet) {
         const randomIndex = Math.floor(Math.random() * allNotesSet.midiNumbers.length);
         setCurrentNote(allNotesSet.midiNumbers[randomIndex]);
@@ -66,22 +70,6 @@ const PianoFlashcardLearner: React.FC = () => {
     setCurrentNote(currentSet.midiNumbers[randomIndex]);
     setActiveNotes(highlightKeyHint ? [currentSet.midiNumbers[randomIndex]] : []);
   }, [setCurrentNote, setActiveNotes, setFeedback, selectedNoteSetId, availableNoteSets, highlightKeyHint]);
-
-  const startDrill = useCallback(() => {
-    setIsDrillMode(true);
-    setCurrentQuestionIndex(0);
-    setCorrectAnswers(0);
-    setShowScoreAndProgress(true);
-    setHighlightKeyHint(false); // Disable highlight hint
-    setLabelNotesHint(false); // Disable label notes hint
-    generateQuestion();
-  }, [generateQuestion]);
-
-  useEffect(() => {
-    if (!isDrillMode) {
-      generateQuestion();
-    }
-  }, [generateQuestion, selectedNoteSetId, isDrillMode]);
 
   useEffect(() => {
     // When clefMode changes, reset selectedNoteSetId to a valid default for the new clef
@@ -100,33 +88,20 @@ const PianoFlashcardLearner: React.FC = () => {
     }
   }, [clefMode, availableNoteSets, selectedNoteSetId]);
 
+  // Initialize flashcard mode if not in drill mode
+  useEffect(() => {
+    if (!isDrillMode) {
+      generateFlashcardQuestion();
+    }
+  }, [isDrillMode, generateFlashcardQuestion]);
+
   const onPlayNote = (midiNumber: number) => {
     if (currentNote === null) return;
 
     if (isDrillMode) {
-      if (midiNumber === currentNote) {
-        setFeedback('Correct!');
-        setShowFeedback(true);
-        setCorrectAnswers(prev => prev + 1);
-      } else {
-        setFeedback('Incorrect.');
-        setShowFeedback(true);
-      }
-      setCurrentQuestionIndex(prev => prev + 1);
-
-      if (currentQuestionIndex + 1 < 10) { // 10 questions per drill
-        setTimeout(() => {
-          generateQuestion();
-        }, 1000);
-      } else {
-        // Drill finished
-        setTimeout(() => {
-          setFeedback(`Drill finished! You scored ${correctAnswers + (midiNumber === currentNote ? 1 : 0)} out of 10.`);
-          setShowFeedback(true);
-          setIsDrillMode(false);
-          setCurrentNote(null);
-          setActiveNotes([]);
-        }, 1000);
+      // Delegate to DrillMode's internal answer handling
+      if (drillModeHandleAnswerRef.current) {
+        drillModeHandleAnswerRef.current(midiNumber);
       }
     } else {
       // Flashcard mode
@@ -134,7 +109,7 @@ const PianoFlashcardLearner: React.FC = () => {
         setFeedback('Correct!');
         setShowFeedback(true);
         setTimeout(() => {
-          generateQuestion();
+          generateFlashcardQuestion();
         }, 1000);
       } else {
         setFeedback('Try again!');
@@ -156,17 +131,18 @@ const PianoFlashcardLearner: React.FC = () => {
 
   const onStopNote = () => {};
 
-  const activeNoteSet = useMemo(() => {
-    return availableNoteSets.find(set => set.id === selectedNoteSetId);
-  }, [selectedNoteSetId, availableNoteSets]);
-
   const displayedNoteSet = useMemo(() => {
     return availableNoteSets.find(set => set.id === selectedNoteSetId);
   }, [selectedNoteSetId, availableNoteSets]);
 
+  const activeNoteSetForAccidentals = useMemo(() => {
+    return PREDEFINED_NOTE_SETS.find(set => set.id === selectedNoteSetId);
+  }, [selectedNoteSetId]);
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4">
-      <h1 className="text-4xl font-bold mb-8">Piano Flashcard Learner</h1>
+      <h1 className="text-4xl font-bold mb-4">Piano Flashcard Learner</h1>
+      <StatsDisplay />
 
       <div className="flex flex-row items-start w-full max-w-4xl mb-8"> {/* Container for FindThisNote and ControlPanel */}
         {currentNote !== null && (
@@ -179,97 +155,41 @@ const PianoFlashcardLearner: React.FC = () => {
               stemLength={60} 
               ledgerLineLength={40} 
               clefColor="text-gray-800"
-              sharpsAndFlats={getKeySignatureAccidentals(activeNoteSet ? activeNoteSet.name : '')}
+              sharpsAndFlats={getKeySignatureAccidentals(activeNoteSetForAccidentals ? activeNoteSetForAccidentals.name : '')}
               hideNoteLetter={isDrillMode}
               clefType={clefMode}
             />
           </div>
         )}
-        <div className="flex flex-col items-start flex-grow bg-gray-800 p-6 rounded-lg shadow-lg"> {/* Control Panel */}
-          <div className="bg-gray-700 p-2 rounded-md shadow-md mb-2 w-full flex flex-col space-y-2">
-            {/* Clef Select */}
-            <div>
-              <label htmlFor="clef-select" className="text-base mr-2 text-white">Select Clef:</label>
-              <select
-                id="clef-select"
-                className="px-2 py-1 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                value={clefMode}
-                onChange={(e) => setClefMode(e.target.value as 'treble' | 'bass')}
-                disabled={isDrillMode}
-              >
-                <option value="treble">Treble Clef</option>
-                <option value="bass">Bass Clef</option>
-              </select>
-            </div>
+        
+		<div className="flex-col">
+			<DrillMode
+			currentNote={currentNote}
+			setCurrentNote={setCurrentNote}
+			setActiveNotes={setActiveNotes}
+			setFeedback={setFeedback}
+			setShowFeedback={setShowFeedback}
+			highlightKeyHint={highlightKeyHint}
+			isDrillMode={isDrillMode}
+			setIsDrillMode={setIsDrillMode}
+			clefMode={clefMode}
+			availableNoteSets={availableNoteSets}
+			selectedNoteSetId={selectedNoteSetId}
+			setSelectedNoteSetId={setSelectedNoteSetId}
+			drillModeHandleAnswerRef={drillModeHandleAnswerRef}
+			/>
 
-            {/* Drill Set Select */}
-            <div>
-              <label htmlFor="drill-set-select" className="text-base mr-2 text-white">Select Drill Set:</label>
-              <select
-                id="drill-set-select"
-                className="px-2 py-1 rounded-md bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                value={selectedNoteSetId}
-                onChange={(e) => setSelectedNoteSetId(e.target.value)}
-                disabled={isDrillMode}
-              >
-                {availableNoteSets.map(set => (
-                  <option key={set.id} value={set.id}>{set.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+			<div className="flex flex-col items-start ml-8">
+			<HintControls
+				highlightKeyHint={highlightKeyHint}
+				setHighlightKeyHint={setHighlightKeyHint}
+				labelNotesHint={labelNotesHint}
+				setLabelNotesHint={setLabelNotesHint}
+				isDrillMode={isDrillMode}
+			/>
+			</div>
+		</div>
 
-          {/* Start Drill Button */}
-          <div className="bg-gray-700 p-2 rounded-md shadow-md mb-2 w-full">
-            <button
-              onClick={startDrill}
-              className={`px-3 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-white ${isDrillMode ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-              disabled={isDrillMode}
-            >
-              {isDrillMode ? 'Drill Activated' : 'Start Drill (10 Questions)'}
-            </button>
-          </div>
-
-          {/* Hint Toggles */}
-          <div className="bg-gray-700 p-2 rounded-md shadow-md w-full">
-			<h1 className="text-white text-lg font-semibold mb-1">Hints</h1>
-            <div className="flex flex-row-reverse items-start mb-1">
-              <label htmlFor="highlight-key-toggle" className="text-base mr-2 text-white">Highlight Key</label>
-              <label className="custom-switch">
-                <input
-                  type="checkbox"
-                  id="highlight-key-toggle"
-                  checked={highlightKeyHint}
-                  onChange={() => setHighlightKeyHint(!highlightKeyHint)}
-                  disabled={isDrillMode}
-                />
-                <span className="slider"></span>
-              </label>
-            </div>
-            <div className="flex flex-row-reverse items-start">
-              <label htmlFor="label-notes-toggle" className="text-base mr-2 text-white">Label Notes</label>
-              <label className="custom-switch">
-                <input
-                  type="checkbox"
-                  id="label-notes-toggle"
-                  checked={labelNotesHint}
-                  onChange={() => setLabelNotesHint(!labelNotesHint)}
-                  disabled={isDrillMode}
-                />
-                <span className="slider"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {/* Right column for score and progress */}
-        {showScoreAndProgress && (
-          <div className="flex flex-col items-end ml-8 p-4 bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-semibold text-white mb-4">Drill Progress</h2>
-            <p className="text-xl text-white">Question: {currentQuestionIndex} / 10</p>
-            <p className="text-xl text-white">Score: {correctAnswers} / {currentQuestionIndex}</p>
-          </div>
-        )}
       </div>
 
       {/* Piano */}
@@ -283,7 +203,7 @@ const PianoFlashcardLearner: React.FC = () => {
           showNoteLabels={labelNotesHint}
           width={800}
           onMouseEnter={(midiNumber) => setHoveredNote(midiNumber)}
-                    onMouseLeave={() => setHoveredNote(null)}
+          onMouseLeave={() => setHoveredNote(null)}
           highlightKeyHint={highlightKeyHint}
         />
       </div>
@@ -305,8 +225,6 @@ const PianoFlashcardLearner: React.FC = () => {
           {feedback}
         </div>
       )}
-
-      
     </div>
   );
 };

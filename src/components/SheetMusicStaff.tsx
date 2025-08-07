@@ -172,25 +172,25 @@ const SheetMusicStaff: React.FC<SheetMusicStaffProps> = ({
     } else { // bass clef
       totalSteps = 17; // This might need adjustment based on the actual range of notes for bass clef
       noteVerticalPositions = {
-        60: 0 * stepHeight, // C4 (Middle C)
-        59: 1 * stepHeight, // B3
-        57: 2 * stepHeight, // A3
-        55: 3 * stepHeight, // G3
-        53: 4 * stepHeight, // F3
-        52: 5 * stepHeight, // E3
-        50: 6 * stepHeight, // D3
-        48: 7 * stepHeight, // C3
-        47: 8 * stepHeight, // B2
-        45: 9 * stepHeight, // A2
-        43: 10 * stepHeight, // G2
-        41: 11 * stepHeight, // F2
-        40: 12 * stepHeight, // E2
-        38: 13 * stepHeight, // D2
-        36: 14 * stepHeight, // C2
-        35: 15 * stepHeight, // B1
-        33: 16 * stepHeight, // A1
+        60: -2 * stepHeight, // C4 (Middle C)
+        59: -1 * stepHeight, // B3
+        57: 0 * stepHeight, // A3
+        55: 1 * stepHeight, // G3
+        53: 2 * stepHeight, // F3
+        52: 3 * stepHeight, // E3
+        50: 4 * stepHeight, // D3
+        48: 5 * stepHeight, // C3
+        47: 6 * stepHeight, // B2
+        45: 7 * stepHeight, // A2
+        43: 8 * stepHeight, // G2
+        41: 9 * stepHeight, // F2
+        40: 10 * stepHeight, // E2
+        38: 11 * stepHeight, // D2
+        36: 12 * stepHeight, // C2
+        35: 13 * stepHeight, // B1
+        33: 14 * stepHeight, // A1
       };
-      notesWithLedgerLines = [60, 62, 64, 65, 67, 47, 45, 43, 41, 40, 38, 36, 35, 33]; // C4, D4, E4, F4, G4 (above staff); B2, A2, G2, F2, E2, D2, C2, B1, A1 (below staff)
+      notesWithLedgerLines = [60, 62, 64, 65, 67, 35, 33]; // C4, D4, E4, F4, G4 (above staff); B1, A1 (below staff)
       clefSymbol = '&#x1D122;'; // Bass clef symbol
       initialNoteXOffset = 70; // Adjusted for bass clef
       

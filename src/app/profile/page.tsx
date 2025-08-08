@@ -1,6 +1,9 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { UserProfileService } from '../../utils/userService';
-import { UserProfile, DrillResult } from '../../types/userTypes';
+import { UserProfile } from '../../types/userTypes';
+import { DrillResult } from '../../types/drillTypes';
 import { PREDEFINED_NOTE_SETS } from '../../utils/noteSets';
 import Link from 'next/link';
 

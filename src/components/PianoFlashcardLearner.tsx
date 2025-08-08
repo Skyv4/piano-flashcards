@@ -141,7 +141,7 @@ const PianoFlashcardLearner: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4">
-      <h1 className="text-4xl font-bold mb-4">Piano Flashcard Learner</h1>
+      <h1 className="text-4xl font-bold mb-4">Piano Flashcard Study</h1>
       <StatsDisplay />
 
       <div className="flex flex-row items-start w-full max-w-4xl mb-8"> {/* Container for FindThisNote and ControlPanel */}
@@ -180,7 +180,7 @@ const PianoFlashcardLearner: React.FC = () => {
 			onClefModeChange={setClefMode}
 			/>
 
-			<div className="flex flex-col items-start ml-8">
+			<div className="flex flex-col items-start">
 			<HintControls
 				highlightKeyHint={highlightKeyHint}
 				setHighlightKeyHint={setHighlightKeyHint}

@@ -21,10 +21,10 @@ SCRIPTS_DIR="${PROJECT_ROOT_DIR}/scripts"
 LIB_DIR="${SCRIPTS_DIR}/lib"
 
 # --- Deployment Configuration ---
-DEPLOY_TARGET_DIR="/var/www/trainerapp"
+DEPLOY_TARGET_DIR="/var/www/piano-learner"
 SYSTEM_USER="www-data"
 SYSTEM_GROUP="www-data"
-SERVICE_NAME="trainerapp"
+SERVICE_NAME="piano-learner"
 SERVICE_FILE_PATH="/etc/systemd/system/${SERVICE_NAME}.service" # Used by deploy.sh
 
 # --- Secrets and Environment Files ---
@@ -50,8 +50,8 @@ else
     DB_PASSWORD="!!!REPLACE_WITH_YOUR_SECURE_POSTGRESQL_PASSWORD!!!"
 fi
 
-DB_USER="trainerapp_user"
-DB_NAME="trainerapp_db"
+DB_USER="piano_learner_user"
+DB_NAME="piano_learner_db"
 DB_HOST="localhost"
 DB_PORT="5432"
 
@@ -62,7 +62,7 @@ COREPACK_SERVICE_USER_CACHE_DIR="/var/www/.cache/node/corepack"
 
 # --- Application Specific ---
 # NEXTAUTH_URL for production (used in systemd service file)
-NEXTAUTH_URL_PROD="https://chess.skyvale.org"
+NEXTAUTH_URL_PROD="https://piano.skyvale.org"
 # Port the Next.js app runs on (used in systemd service file)
 APP_PORT="3000"
 

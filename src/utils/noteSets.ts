@@ -58,7 +58,7 @@ export const PREDEFINED_NOTE_SETS: NoteSet[] = [
       noteToMidi('e3'),
       noteToMidi('g3'),
     ],
-    clef: 'both',
+    clef: 'bass',
   },
   {
     id: 'g-major-scale',

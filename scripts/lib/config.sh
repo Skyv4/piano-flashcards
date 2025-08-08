@@ -28,32 +28,35 @@ SERVICE_NAME="piano-learner"
 SERVICE_FILE_PATH="/etc/systemd/system/${SERVICE_NAME}.service" # Used by deploy.sh
 
 # --- Secrets and Environment Files ---
-# For app/.env (typically local development or base for secrets)
-APP_ENV_FILE_PATH="${APP_DIR}/.env"
+# These are now standard .env files in the project root.
+# Scripts should handle .env.local, .env.production, and .env.example as needed.
+ENV_EXAMPLE_FILE="${PROJECT_ROOT_DIR}/.env.example"
+ENV_LOCAL_FILE="${PROJECT_ROOT_DIR}/.env.local"
+ENV_PROD_FILE="${PROJECT_ROOT_DIR}/.env.production"
 
-# For app/.secrets (source for production secrets, copied to DEPLOY_TARGET_DIR)
-# These are basenames; full paths constructed in scripts as needed.
-SOURCE_SECRETS_FILE_BASENAME=".secrets"
-TARGET_SECRETS_FILE_BASENAME=".secrets" # Should be same as source for consistency
+# The final environment file to be used in the deployment target directory.
+# Next.js automatically picks up '.env' in the production environment.
+DEPLOY_ENV_FILE_BASENAME=".env"
 
-# Path to the script that generates app/.secrets from app/secrets.default
-GENERATE_SECRETS_SCRIPT_RELATIVE_PATH="scripts/generate_secrets.sh" # Relative to PROJECT_ROOT_DIR
+# Path to the script that generates the local development environment file.
+GENERATE_ENV_SCRIPT_RELATIVE_PATH="scripts/generate_secrets.sh" # Relative to PROJECT_ROOT_DIR
 
 # --- Database Configuration (Used by setup scripts and generate_secrets.sh) ---
-# Check for global PostgreSQL configuration
+DB_USER="piano_learner_user"
+DB_NAME="piano_learner_db"
+DB_HOST="localhost"
+DB_PORT="5432"
+
+# Check for global PostgreSQL configuration to set DB_PASSWORD
 GLOBAL_CONFIG_PATH="/home/gabe/.postgres_config.sh"
 if [ -f "$GLOBAL_CONFIG_PATH" ]; then
+    # shellcheck source=/home/gabe/.postgres_config.sh
     source "$GLOBAL_CONFIG_PATH"
     DB_PASSWORD="$POSTGRES_PASSWORD"
 else
     # Fallback to placeholder if global config is not available
     DB_PASSWORD="!!!REPLACE_WITH_YOUR_SECURE_POSTGRESQL_PASSWORD!!!"
 fi
-
-DB_USER="piano_learner_user"
-DB_NAME="piano_learner_db"
-DB_HOST="localhost"
-DB_PORT="5432"
 
 # --- PNPM/Corepack Configuration ---
 # Cache directory for the SYSTEM_USER (e.g., www-data) when using corepack.
@@ -64,7 +67,7 @@ COREPACK_SERVICE_USER_CACHE_DIR="/var/www/.cache/node/corepack"
 # NEXTAUTH_URL for production (used in systemd service file)
 NEXTAUTH_URL_PROD="https://piano.skyvale.org"
 # Port the Next.js app runs on (used in systemd service file)
-APP_PORT="3000"
+APP_PORT="3111"
 
 # Add other shared configuration variables here as needed.
 

@@ -26,7 +26,7 @@ log_info "Starting NVM setup for user '${SYSTEM_USER}'..."
 # like www-data, we define a conventional home like /var/www.
 
 NVM_DIR_FOR_SYSTEM_USER="/var/www/.nvm"
-NODE_VERSION_FOR_APP="20.x" # Or a specific version like "20.11.0"
+NODE_VERSION_FOR_APP="20" # Or a specific version like "20.11.0"
 
 log_info "Ensuring NVM directory exists for '${SYSTEM_USER}' at ${NVM_DIR_FOR_SYSTEM_USER}..."
 if sudo mkdir -p "${NVM_DIR_FOR_SYSTEM_USER}"; then

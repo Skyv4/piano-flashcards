@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { MidiNumbers } from 'react-piano';
+import { noteToMidi } from '../utils/noteUtils';
 import CustomKeyboard from './CustomKeyboard';
-import 'react-piano/dist/styles.css';
+
 import SheetMusicStaff from './SheetMusicStaff';
 import NoteSetDisplay from './NoteSetDisplay';
 import { PREDEFINED_NOTE_SETS } from '../utils/noteSets';
@@ -49,8 +49,8 @@ const PianoFlashcardLearner: React.FC = () => {
   }, [clefMode]);
 
   const noteRange = useMemo(() => ({
-    first: MidiNumbers.fromNote('c2'),
-    last: MidiNumbers.fromNote('f5'),
+    first: noteToMidi('c2'),
+    last: noteToMidi('f5'),
   }), []);
 
   const generateFlashcardQuestion = useCallback(() => {

@@ -12,6 +12,15 @@
 # (Assumes SCRIPTS_DIR is defined, typically from config.sh)
 # -----------------------------------------------------------------------------
 
+# --- Sudo Handling ---
+# If the script is not running in an interactive terminal, use -S to read from stdin.
+# This prevents sudo from hanging waiting for a password.
+if ! tty -s; then
+    SUDO="sudo -S"
+else
+    SUDO="sudo"
+fi
+
 # --- Logging Functions ---
 # Standardized logging with timestamps and levels.
 
@@ -69,7 +78,7 @@ ensure_user_group_exists() {
 
     if ! getent group "${group_name}" &> /dev/null; then
         log_info "Group '${group_name}' does not exist. Creating..."
-        if sudo groupadd "${group_name}"; then
+        if ${SUDO} groupadd "${group_name}"; then
             log_info "Group '${group_name}' created."
         else
             log_fatal "Failed to create group '${group_name}'."
@@ -91,7 +100,7 @@ ensure_user_group_exists() {
             useradd_opts="-g ${group_name}"
         fi
         
-        if sudo useradd ${useradd_opts} "${user_name}"; then
+        if ${SUDO} useradd ${useradd_opts} "${user_name}"; then
             log_info "User '${user_name}' created."
         else
             log_fatal "Failed to create user '${user_name}'."
@@ -113,7 +122,7 @@ setup_system_pnpm_via_corepack() {
     if ! command -v corepack &> /dev/null; then
         log_warning "corepack command not found globally. Attempting to install via npm..."
         ensure_command_exists "npm" "nodejs"
-        if sudo npm i -g corepack; then
+        if ${SUDO} npm i -g corepack; then
             log_info "Corepack installed globally via npm."
             # Re-check after install
             ensure_command_exists "corepack" "corepack"
@@ -122,7 +131,7 @@ setup_system_pnpm_via_corepack() {
         fi
     fi
 
-    if sudo corepack enable; then
+    if ${SUDO} corepack enable; then
         log_info "Corepack enabled system-wide."
     else
         log_fatal "Failed to enable corepack system-wide."
@@ -130,7 +139,7 @@ setup_system_pnpm_via_corepack() {
     # Prepare a recent version of pnpm. 'latest' might be too volatile for some.
     # Using a known good recent version or allowing it to be configured might be better.
     # For now, let's use 'latest' as in the original 06_setup_user.sh.
-    if sudo corepack prepare pnpm@latest --activate; then
+    if ${SUDO} corepack prepare pnpm@latest --activate; then
         log_info "pnpm@latest prepared and activated system-wide via corepack."
     else
         log_fatal "Failed to prepare pnpm@latest system-wide via corepack."
@@ -162,7 +171,7 @@ prepare_service_user_pnpm_environment() {
     log_info "Preparing this pnpm version for '${SYSTEM_USER}' via corepack."
 
     log_info "Ensuring corepack cache directory exists for '${SYSTEM_USER}' at ${COREPACK_SERVICE_USER_CACHE_DIR}..."
-    if sudo mkdir -p "${COREPACK_SERVICE_USER_CACHE_DIR}"; then
+    if ${SUDO} mkdir -p "${COREPACK_SERVICE_USER_CACHE_DIR}"; then
         log_info "Corepack cache directory ensured."
     else
         log_fatal "Failed to create corepack cache directory: ${COREPACK_SERVICE_USER_CACHE_DIR}"
@@ -176,7 +185,7 @@ prepare_service_user_pnpm_environment() {
     cache_parent_dir=$(dirname "${cache_parent_dir}") # e.g. /var/www/.cache
     
     log_info "Setting ownership of '${cache_parent_dir}' to '${SYSTEM_USER}:${SYSTEM_GROUP}'..."
-    if sudo chown -R "${SYSTEM_USER}:${SYSTEM_GROUP}" "${cache_parent_dir}"; then
+    if ${SUDO} chown -R "${SYSTEM_USER}:${SYSTEM_GROUP}" "${cache_parent_dir}"; then
         log_info "Ownership set for '${cache_parent_dir}'."
     else
         log_warning "Failed to set ownership for '${cache_parent_dir}'. Corepack might have issues for '${SYSTEM_USER}'."
@@ -184,13 +193,13 @@ prepare_service_user_pnpm_environment() {
     fi
 
     log_info "Running corepack commands as '${SYSTEM_USER}'..."
-    if sudo -u "${SYSTEM_USER}" -H bash -c "export NVM_DIR=/var/www/.nvm; [ -s \"$NVM_DIR/nvm.sh\" ] && \. \"$NVM_DIR/nvm.sh\"; corepack enable"; then
+    if ${SUDO} -u "${SYSTEM_USER}" -H bash -c "export NVM_DIR=/var/www/.nvm; [ -s \"$NVM_DIR/nvm.sh\" ] && \. \"$NVM_DIR/nvm.sh\"; corepack enable"; then
         log_info "Corepack enabled for '${SYSTEM_USER}'."
     else
         log_fatal "Failed to enable corepack for '${SYSTEM_USER}'."
     fi
 
-    if sudo -u "${SYSTEM_USER}" -H bash -c "export NVM_DIR=/var/www/.nvm; [ -s \"$NVM_DIR/nvm.sh\" ] && \. \"$NVM_DIR/nvm.sh\"; corepack prepare pnpm@${current_pnpm_version} --activate"; then
+    if ${SUDO} -u "${SYSTEM_USER}" -H bash -c "export NVM_DIR=/var/www/.nvm; [ -s \"$NVM_DIR/nvm.sh\" ] && \. \"$NVM_DIR/nvm.sh\"; corepack prepare pnpm@${current_pnpm_version} --activate"; then
         log_info "pnpm@${current_pnpm_version} prepared and activated for '${SYSTEM_USER}'."
     else
         log_fatal "Failed to prepare pnpm@${current_pnpm_version} for '${SYSTEM_USER}'."
@@ -211,18 +220,17 @@ set_target_ownership_and_permissions() {
     fi
 
     log_info "Setting final ownership for '${target_dir}' to '${owner_user}:${owner_group}'..."
-    if sudo chown -R "${owner_user}:${owner_group}" "${target_dir}"; then
+    if ${SUDO} chown -R "${owner_user}:${owner_group}" "${target_dir}"; then
         log_info "Ownership set."
     else
         log_fatal "Failed to set ownership for '${target_dir}'."
     fi
 
-    log_info "Setting permissions for '${target_dir}' (u=rwX, g=rX, o=)...
-"
+    log_info "Setting permissions for '${target_dir}' (u=rwX, g=rX, o=)...\n"
     # u=rwX: User gets read, write, execute (execute only for directories or if already executable for files).
     # g=rX: Group gets read, execute.
     # o=: Others get nothing.
-    if sudo chmod -R u=rwX,g=rX,o= "${target_dir}"; then
+    if ${SUDO} chmod -R u=rwX,g=rX,o= "${target_dir}"; then
         log_info "Permissions set."
     else
         log_fatal "Failed to set permissions for '${target_dir}'."

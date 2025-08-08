@@ -32,7 +32,7 @@ fi
 
 # --- 2. Install Essential Tools ---
 log_info "Installing essential tools (curl, git, rsync, build-essential, tee, gnupg, ca-certificates, lsb-release)..."
-if sudo apt-get install -y curl git rsync build-essential tee gnupg ca-certificates lsb-release; then
+if sudo apt-get install -y curl git rsync build-essential gnupg ca-certificates lsb-release; then
     log_info "Essential tools installed."
 else
     log_fatal "Failed to install essential tools."

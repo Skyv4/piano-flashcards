@@ -1,5 +1,7 @@
 // src/utils/noteSets.ts
 
+import { noteToMidi } from './noteUtils';
+
 export interface NoteSet {
   id: string;
   name: string;
@@ -7,32 +9,6 @@ export interface NoteSet {
   clef: 'treble' | 'bass' | 'both';
 }
 
-// Helper to convert note name (e.g., "C4", "G#3", "Bb5") to MIDI number
-const noteToMidi = (note: string): number => {
-  const noteMap: { [key: string]: number } = {
-    'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3, 'E': 4, 'F': 5,
-    'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
-  };
-
-  const accidentalMatch = note.match(/^(C|D|E|F|G|A|B)(b|#)?(\d+)$/i);
-  if (!accidentalMatch) {
-    throw new Error(`Invalid note format: ${note}`);
-  }
-
-  const baseNote = accidentalMatch[1].toUpperCase();
-  const accidental = accidentalMatch[2];
-  const octave = parseInt(accidentalMatch[3], 10);
-
-  let semitones = noteMap[baseNote];
-  if (accidental === '#') {
-    semitones += 1;
-  } else if (accidental === 'b') {
-    semitones -= 1;
-  }
-
-  // MIDI number for C0 is 12. Each octave is 12 semitones.
-  return (octave + 1) * 12 + semitones;
-};
 
 // Helper to generate a range of MIDI numbers
 const generateMidiRange = (startNote: string, endNote: string): number[] => {

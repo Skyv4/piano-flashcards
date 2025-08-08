@@ -12,10 +12,10 @@ set -e
 
 # Determine script's own directory to reliably source config and common libs
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=../lib/config.sh
-source "${_SCRIPT_DIR}/../lib/config.sh"
-# shellcheck source=../lib/common.sh
-source "${_SCRIPT_DIR}/../lib/common.sh"
+# shellcheck source=lib/config.sh
+source "${_SCRIPT_DIR}/lib/config.sh"
+# shellcheck source=lib/common.sh
+source "${_SCRIPT_DIR}/lib/common.sh"
 
 log_info "Starting global setup process..."
 
@@ -31,7 +31,7 @@ SETUP_SCRIPTS=(
 )
 
 for script in "${SETUP_SCRIPTS[@]}"; do
-    SCRIPT_PATH="${_SCRIPT_DIR}/${script}"
+    SCRIPT_PATH="${_SCRIPT_DIR}/setup/${script}"
     if [ -f "${SCRIPT_PATH}" ]; then
         log_info "Executing setup script: ${script}"
         if bash "${SCRIPT_PATH}"; then

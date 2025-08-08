@@ -21,6 +21,7 @@ interface CustomKeyboardProps {
   gliss?: boolean;
   useTouchEvents?: boolean;
   width?: number;
+  height?: string; // New prop for fixed height
   hoveredNote: number | null; // New prop for hovered note
   onMouseEnter: (midiNumber: number) => void; // New prop for mouse enter event
   onMouseLeave: (midiNumber: number | null) => void; // New prop for mouse leave event
@@ -57,6 +58,9 @@ class CustomKeyboard extends React.Component<CustomKeyboardProps> {
   }
 
   getHeight() {
+    if (this.props.height) {
+      return this.props.height;
+    }
     if (!this.props.width) {
       return '100%';
     }
@@ -66,10 +70,13 @@ class CustomKeyboard extends React.Component<CustomKeyboardProps> {
 
   render() {
     const naturalKeyWidth = this.getNaturalKeyWidth();
+    const keyboardHeight = this.getHeight();
+    const keyHeight = parseFloat(keyboardHeight.replace('px', '')); // Extract number from '200px'
+
     return (
       <div
         className={classNames('ReactPiano__Keyboard', this.props.className)}
-        style={{ width: this.getWidth(), height: this.getHeight() }}
+        style={{ width: this.getWidth(), height: keyboardHeight }}
         onMouseLeave={() => this.props.onMouseLeave(null)}
       >
         {this.getMidiNumbers().map((midiNumber) => {
@@ -93,6 +100,7 @@ class CustomKeyboard extends React.Component<CustomKeyboardProps> {
               isHovered={isHovered} // Pass isHovered prop
               onMouseEnter={() => this.props.onMouseEnter(midiNumber)} // Pass onMouseEnter handler
               onMouseLeave={this.props.onMouseLeave} // Pass onMouseLeave handler directly
+              keyHeight={keyHeight} // Pass keyHeight prop
             >
               {this.props.disabled || !this.props.showNoteLabels
                 ? null

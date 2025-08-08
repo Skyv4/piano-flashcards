@@ -226,7 +226,7 @@ const PianoFlashcardLearner: React.FC = () => {
       </div>
 
       {/* Piano */}
-      <div className="w-full max-w-4xl mb-8">
+      <div className="w-full max-w-4xl mb-8 h-[200px] overflow-hidden">
         <CustomKeyboard
           noteRange={noteRange}
           onPlayNoteInput={onPlayNote}
@@ -238,6 +238,7 @@ const PianoFlashcardLearner: React.FC = () => {
           onMouseEnter={(midiNumber) => setHoveredNote(midiNumber)}
           onMouseLeave={() => setHoveredNote(null)}
           highlightKeyHint={highlightKeyHint}
+          height="200px"
         />
       </div>
 

@@ -37,6 +37,7 @@ interface CustomKeyProps {
   isHovered: boolean; // New prop for hover state
   onMouseEnter: (midiNumber: number) => void; // New prop for mouse enter event
   onMouseLeave: (midiNumber: number | null) => void; // New prop for mouse leave event
+  keyHeight: number; // New prop for key height
 }
 
 interface CustomKeyState {
@@ -122,6 +123,7 @@ class CustomKey extends React.Component<CustomKeyProps, CustomKeyState> {
           width: ratioToPercentage(
             accidental ? accidentalWidthRatio * naturalKeyWidth : naturalKeyWidth,
           ),
+          height: accidental ? `${this.props.keyHeight * 0.6}px` : `${this.props.keyHeight}px`, // Use keyHeight prop
         }}
         onMouseDown={useTouchEvents ? undefined : this.onPlayNoteInput}
         onMouseUp={useTouchEvents ? undefined : this.onStopNoteInput}

@@ -15,7 +15,7 @@
 # This assumes config.sh is in scripts/lib/, so ../.. goes to project root.
 PROJECT_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-APP_DIR_RELATIVE="app"
+APP_DIR_RELATIVE="src/app"
 APP_DIR="${PROJECT_ROOT_DIR}/${APP_DIR_RELATIVE}"
 SCRIPTS_DIR="${PROJECT_ROOT_DIR}/scripts"
 LIB_DIR="${SCRIPTS_DIR}/lib"

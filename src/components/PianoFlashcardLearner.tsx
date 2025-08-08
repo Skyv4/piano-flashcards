@@ -13,6 +13,7 @@ import HintControls from './HintControls';
 import StatsDisplay from './StatsDisplay';
 import { DrillService } from '../utils/drillService';
 import { useSearchParams } from 'next/navigation';
+import { SplendidGrandPiano } from 'smplr';
 
 
 const PianoFlashcardLearner: React.FC = () => {
@@ -29,6 +30,10 @@ const PianoFlashcardLearner: React.FC = () => {
   const [highlightKeyHint, setHighlightKeyHint] = useState<boolean>(false);
   const [labelNotesHint, setLabelNotesHint] = useState<boolean>(false);
   const [clefMode, setClefMode] = useState<'treble' | 'bass'>('treble');
+
+  // Refs for audio playback
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const pianoRef = useRef<SplendidGrandPiano | null>(null);
 
   // Ref to hold the DrillMode's handleAnswer function
   const drillModeHandleAnswerRef = useRef<((midiNumber: number) => void) | null>(null);
@@ -90,12 +95,35 @@ const PianoFlashcardLearner: React.FC = () => {
 
   // Initialize flashcard mode if not in drill mode
   useEffect(() => {
+    // Initialize AudioContext and SplendidGrandPiano
+    if (typeof window !== 'undefined') {
+      audioContextRef.current = new window.AudioContext();
+      pianoRef.current = new SplendidGrandPiano(audioContextRef.current);
+      pianoRef.current.load.then(() => {
+        console.log('Piano samples loaded.');
+      });
+    }
+
+    // Initialize flashcard mode if not in drill mode
     if (!isDrillMode) {
       generateFlashcardQuestion();
     }
+
+    return () => {
+      // Clean up audio context on unmount
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
   }, [isDrillMode, generateFlashcardQuestion]);
 
   const onPlayNote = (midiNumber: number) => {
+    if (audioContextRef.current && pianoRef.current) {
+      audioContextRef.current.resume().then(() => {
+        pianoRef.current?.start({ note: midiNumber, velocity: 100 });
+      });
+    }
+
     if (currentNote === null) return;
 
     if (isDrillMode) {
@@ -129,7 +157,11 @@ const PianoFlashcardLearner: React.FC = () => {
     return () => clearTimeout(timer);
   }, [feedback, showFeedback]);
 
-  const onStopNote = () => {};
+  const onStopNote = (midiNumber: number) => {
+    if (pianoRef.current) {
+      pianoRef.current.stop(midiNumber);
+    }
+  };
 
   const displayedNoteSet = useMemo(() => {
     return availableNoteSets.find(set => set.id === selectedNoteSetId);

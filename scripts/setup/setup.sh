@@ -26,7 +26,8 @@ SETUP_SCRIPTS=(
     "03_setup_nvm.sh"
     "04_setup_pnpm.sh"
     "05_setup_postgres.sh"
-    "06_setup_caddy.sh"
+    "06_setup_user.sh"
+    "07_setup_caddy.sh"
 )
 
 for script in "${SETUP_SCRIPTS[@]}"; do

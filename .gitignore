@@ -41,3 +41,10 @@ yarn-error.log*
 !/.env.example
 .env.production
 .env.development
+
+# Playwright and Test Results
+playwright-report/
+playwright.config.ts
+screenshots/
+test-results/
+tests/

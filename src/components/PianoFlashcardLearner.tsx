@@ -172,13 +172,13 @@ const PianoFlashcardLearner: React.FC = () => {
   }, [selectedNoteSetId]);
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen p-4">
+    <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center justify-start">
       <h1 className="text-4xl font-bold mb-4">Piano Flashcard Study</h1>
       <StatsDisplay />
 
-      <div className="flex flex-row items-start w-full max-w-4xl mb-8"> {/* Container for FindThisNote and ControlPanel */}
+      <div className="flex flex-col sm:flex-row items-center sm:items-start w-full max-w-4xl mb-8"> {/* Container for FindThisNote and ControlPanel */}
         {currentNote !== null && (
-          <div className="bg-gray-100 rounded-lg shadow-lg p-6 w-full max-w-sm mr-8"> {/* Find this note display */}
+          <div className="bg-gray-100 rounded-lg shadow-lg p-4 sm:p-6 w-full sm:max-w-sm mb-4 sm:mb-0 sm:mr-8"> {/* Find this note display */}
             <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Find this note</h2>
             <SheetMusicStaff 
               midiNumbers={[currentNote]} 
@@ -194,7 +194,7 @@ const PianoFlashcardLearner: React.FC = () => {
           </div>
         )}
         
-		<div className="flex-col">
+		<div className="flex flex-col w-full">
 			<DrillMode
 			currentNote={currentNote}
 			setCurrentNote={setCurrentNote}
@@ -226,7 +226,8 @@ const PianoFlashcardLearner: React.FC = () => {
       </div>
 
       {/* Piano */}
-      <div className="w-full max-w-4xl mb-8 h-[200px] overflow-hidden">
+<<<<<<< HEAD
+      <div className="w-full max-w-4xl mb-8 overflow-x-auto">
         <CustomKeyboard
           noteRange={noteRange}
           onPlayNoteInput={onPlayNote}
@@ -255,7 +256,7 @@ const PianoFlashcardLearner: React.FC = () => {
       )}
 
       {feedback && showFeedback && (
-        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 text-4xl font-bold transition-opacity duration-500 ease-in-out ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'} opacity-100 bg-gray-800 p-4 rounded-lg shadow-lg z-50`}>
+        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 text-2xl sm:text-4xl font-bold transition-opacity duration-500 ease-in-out ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'} opacity-100 bg-gray-800 p-4 rounded-lg shadow-lg z-50`}>
           {feedback}
         </div>
       )}
